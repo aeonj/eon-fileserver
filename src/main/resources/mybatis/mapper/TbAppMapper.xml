@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="eon.hg.fileserver.mapper.TbAppMapper">
+  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.TbApp">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="app_no" jdbcType="VARCHAR" property="app_no" />
+    <result column="app_desc" jdbcType="VARCHAR" property="app_desc" />
+    <result column="file_type" property="file_type" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, app_no, app_desc, file_type
+  </sql>
+
+  <select id="getAll" resultMap="BaseResultMap"  >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_app
+  </select>
+
+  <select id="getOne" parameterType="java.lang.Long" resultMap="BaseResultMap" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_app
+    WHERE id = #{id}
+  </select>
+
+  <select id="getByAppNo" parameterType="java.lang.String" resultMap="BaseResultMap" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_app
+    WHERE
+    app_no = #{app_no}
+  </select>
+
+  <insert id="insert" parameterType="eon.hg.fileserver.model.TbApp" useGeneratedKeys="true" keyProperty="id">
+    insert into tb_app (id, app_no, app_desc)
+    values (#{id}, #{app_no}, #{app_desc})
+  </insert>
+
+  <update id="update" parameterType="eon.hg.fileserver.model.TbApp">
+    update tb_app
+    set
+    <if test="app_no != null">app_no = #{app_no},</if>
+    app_desc = #{app_desc}
+    where
+    id = #{id}
+  </update>
+
+  <delete id="delete" parameterType="java.lang.Long" >
+    DELETE FROM
+    tb_app
+    WHERE
+    id =#{id}
+  </delete>
+</mapper>

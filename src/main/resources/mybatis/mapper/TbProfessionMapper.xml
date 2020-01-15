@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="eon.hg.fileserver.mapper.TbProfessionMapper">
+  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.TbProfession">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="app_no" jdbcType="VARCHAR" property="app_no" />
+    <result column="app_file_id" jdbcType="VARCHAR" property="app_file_id" />
+    <result column="file_id" jdbcType="VARCHAR" property="file_id" />
+    <result column="app_ip" jdbcType="BIGINT" property="app_ip" />
+    <result column="pipe" jdbcType="VARCHAR" property="pipe" />
+    <result column="status" jdbcType="BIT" property="status" />
+    <result column="last_ver" jdbcType="VARCHAR" property="last_ver" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, app_no, app_file_id, file_id, app_ip, pipe, status, last_ver
+  </sql>
+
+  <select id="getAll" resultMap="BaseResultMap"  >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_profession
+  </select>
+
+  <select id="getOne" parameterType="java.lang.Long" resultMap="BaseResultMap" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_profession
+    WHERE id = #{id}
+  </select>
+
+  <select id="selectByMap" parameterType="java.util.Map" resultMap="BaseResultMap" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_profession
+    WHERE
+    app_no = #{app_no} and app_file_id = #{app_file_id}
+  </select>
+
+  <insert id="insert" parameterType="eon.hg.fileserver.model.TbProfession" useGeneratedKeys="true" keyProperty="id">
+    insert into tb_profession (id, app_no,
+      app_file_id, file_id, app_ip, pipe, status, last_ver)
+    values (#{id}, #{app_no},
+      #{app_file_id}, #{file_id}, #{app_ip}, #{pipe}, #{status}, #{last_ver})
+  </insert>
+
+  <update id="update" parameterType="eon.hg.fileserver.model.TbProfession">
+    update tb_profession
+    set
+    <if test="url != null">url = #{url},</if>
+    last_ver = #{last_ver},
+    status = #{status}
+    where
+    id = #{id}
+  </update>
+
+  <delete id="delete" parameterType="java.lang.Long" >
+    DELETE FROM
+    tb_profession
+    WHERE
+    id =#{id}
+  </delete>
+</mapper>

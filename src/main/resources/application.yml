@@ -1,0 +1,88 @@
+fdfs:
+  connect-timeout: 1601
+  pool:
+    jmx-name-base: 1
+    jmx-name-prefix: 1
+    max-wait-millis: 102
+    max-total: 153
+  so-timeout: 1501
+  thumb-image:
+    height: 150
+    width: 150
+  tracker-list: 192.168.1.130:22122
+
+spring:
+  freemarker:
+    request-context-attribute: request
+    suffix: .ftl   #后缀名
+    content-type: text/html
+    enabled: true
+    cache: false #缓存配置
+    template-loader-path: classpath:/templates #模板加载路径 按需配置
+    charset: UTF-8 #编码格式
+    settings:
+      number_format: '0.##'   #数字格式化，无小数点
+  servlet: #上传限制
+    multipart:
+      maxFileSize: 1000MB
+      maxRequestSize: 100MB
+  redis:
+    database: 10
+    host: localhost
+    port: 6379
+    password:
+    jedis:
+      pool:
+        max-active: 2000
+        max-wait: 5000ms
+        max-idle: 500
+        min-idle: 0
+  datasource:
+#    name: test
+    url: jdbc:mysql://127.0.0.1:3306/fastdfs
+    username: root
+    password: root
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+
+## 该配置节点为独立的节点
+mybatis:
+  config-location: classpath:mybatis/mybatis-config.xml
+  mapperLocations: classpath:mybatis/mapper/*.xml  #注意：一定要对应mapper映射xml文件的所在路径
+  type-aliases-package: eon.hg.fileserver.model  # 注意：对应实体类的路径
+
+## 打印sql语句
+logging:
+  level:
+     eon.hg.fileserver.mapper: debug
+
+#pagehelper分页插件
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+server:
+  port: 8080
+
+eon:
+  hg:
+    file-server:
+      uploadFolder: /Users/aeon/Documents/uploadfile/
+      serverUrl: http://192.168.1.130:8888/ #上传远程服务器访问地址
+

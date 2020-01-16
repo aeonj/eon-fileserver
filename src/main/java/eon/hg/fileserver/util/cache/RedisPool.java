@@ -1,10 +1,7 @@
 package eon.hg.fileserver.util.cache;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -18,6 +15,9 @@ public class RedisPool {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     // =============================common============================
     /**
@@ -155,7 +155,7 @@ public class RedisPool {
         if (delta < 0) {
             throw new RuntimeException("递增因子必须大于0");
         }
-        return redisTemplate.opsForValue().increment(key, delta);
+        return stringRedisTemplate.opsForValue().increment(key, delta);
     }
 
     /**
@@ -168,7 +168,21 @@ public class RedisPool {
         if (delta < 0) {
             throw new RuntimeException("递减因子必须大于0");
         }
-        return redisTemplate.opsForValue().increment(key, -delta);
+        return stringRedisTemplate.opsForValue().increment(key, -delta);
+    }
+
+    public void freeIncr(String key) {
+        stringRedisTemplate.opsForValue().set(key, "0");
+    }
+
+    public void delIncr(String... key) {
+        if (key != null && key.length >0) {
+            if (key.length == 1) {
+                stringRedisTemplate.delete(key[0]);
+            } else {
+                stringRedisTemplate.delete(CollectionUtils.arrayToList(key));
+            }
+        }
     }
 
     // ================================Map=================================
@@ -297,7 +311,7 @@ public class RedisPool {
      * @return
      */
     public double hincr(String key, String item, double by) {
-        return redisTemplate.opsForHash().increment(key, item, by);
+        return stringRedisTemplate.opsForHash().increment(key, item, by);
     }
 
     /**
@@ -308,7 +322,16 @@ public class RedisPool {
      * @return
      */
     public double hdecr(String key, String item, double by) {
-        return redisTemplate.opsForHash().increment(key, item, -by);
+        return stringRedisTemplate.opsForHash().increment(key, item, -by);
+    }
+
+    /**
+     * 释放锁
+     * @param key
+     * @param item
+     */
+    public void hfree(String key, String item) {
+        stringRedisTemplate.opsForHash().put(key, item, "0");
     }
 
     // ============================set=============================

@@ -21,9 +21,6 @@ public class FileConstant {
     //当前文件上传到fastdfs路径
     public final static String fastDfsPath = file + "fastDfsPath:";
 
-    //当前文件上传到fastdfs组
-    public final static String fastDfsGroup = file + "fastDfsGroup:";
-
     //全部上传成功已完成
     public final static String completedList = uploading + "completedList";
 

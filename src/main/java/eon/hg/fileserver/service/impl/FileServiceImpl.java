@@ -123,6 +123,8 @@ public class FileServiceImpl implements FileService {
         //判断TbFile是否存在
         InputStream inputStream;
         try {
+            fileDTO.setFileSize(multipartFile.getSize());
+            fileDTO.setFileMd5(SecureUtil.md5().digestHex(multipartFile.getBytes()));
             inputStream = multipartFile.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
@@ -221,7 +223,7 @@ public class FileServiceImpl implements FileService {
             try {
                 //查询锁占用
                 String lockName = FileConstant.currLocks + fileGUID;
-                Long lock = redisPool.incr(lockName, 1);
+                Long lock = redisPool.incr(lockName, 1l);
                 String lockOwner = FileConstant.lockOwner + fileGUID;
                 String chunkCurrkey = FileConstant.chunkCurr + fileGUID;
                 String sizeCurrKey = FileConstant.sizeCurr + fileGUID;
@@ -411,7 +413,7 @@ public class FileServiceImpl implements FileService {
         boolean currOwner = false;//真正的拥有者
         try {
 
-            Long lock = redisPool.incr(chunklockName, 1);
+            Long lock = redisPool.incr(chunklockName, 1l);
             if (lock > 1) {
                 throw new ResultException(ResultBody.failed("请求块锁失败"));
             }
@@ -448,24 +450,24 @@ public class FileServiceImpl implements FileService {
 
 
             //  System.out.println("***********开始**********");
-            StorePath path;
             //暂时不支持多文件上传,后续版本可以再加上
             if (!multipartFile.isEmpty()) {
                 try {
                     long fileSize = multipartFile.getSize();
                     if (fileDTO.getChunk() == 1) {
-
                         redisPool.set(chunkCurrkey, chunkCurr + 1);
                         log.debug(chunk + ":redis块+1");
                         try {
-                            path = storageClient.uploadAppenderFile(null, multipartFile.getInputStream(),
+                            StorePath storePath = storageClient.uploadAppenderFile(null, multipartFile.getInputStream(),
                                     fileSize, FileUtil.extName(fileDTO.getFileName()));
                             log.debug(chunk + ":更新完fastdfs");
-                            if (path == null) {
+                            if (storePath == null) {
                                 redisPool.set(chunkCurrkey, chunkCurr);
                                 throw new ResultException(ResultBody.failed("获取远程文件路径出错"));
                             }
 
+                            redisPool.set(FileConstant.fastDfsPath + fileGUID, storePath.getFullPath());
+                            log.debug("上传文件 result={}", storePath);
                         } catch (Exception e) {
                             redisPool.set(chunkCurrkey, chunkCurr);
                             // e.printStackTrace();
@@ -474,24 +476,20 @@ public class FileServiceImpl implements FileService {
                             throw new ResultException(ResultBody.failed("上传远程服务器文件出错"));
 
                         }
-                        redisPool.set(FileConstant.fastDfsGroup + fileGUID, path.getGroup());
-                        redisPool.set(FileConstant.fastDfsPath + fileGUID, path.getPath());
-                        log.debug("上传文件 result={}", path);
                     } else {
                         redisPool.set(chunkCurrkey, chunkCurr + 1);
                         log.debug(chunk + ":redis块+1");
-                        String groupCurr = redisPool.get(FileConstant.fastDfsPath + fileGUID);
-                        if (groupCurr == null) {
-                            throw new ResultException(ResultBody.failed("无法获取上传远程服务器文件group分组"));
-                        }
-                        String pathCurr = redisPool.get(FileConstant.fastDfsPath + fileGUID);
-                        if (pathCurr == null) {
+                        String fullPathCurr = redisPool.get(FileConstant.fastDfsPath + fileGUID);
+                        if (fullPathCurr == null) {
                             throw new ResultException(ResultBody.failed("无法获取上传远程服务器文件path路径"));
                         }
 
                         try {
+                            StorePath storePath = StorePath.praseFromUrl(fullPathCurr);
+                            String group = storePath.getGroup();
+                            String path = storePath.getPath();
                             //追加方式实际实用如果中途出错多次,可能会出现重复追加情况,这里改成修改模式,即时多次传来重复文件块,依然可以保证文件拼接正确
-                            storageClient.modifyFile(groupCurr, pathCurr, multipartFile.getInputStream(),
+                            storageClient.modifyFile(group, path, multipartFile.getInputStream(),
                                     fileSize, sizeCurr);
                             log.debug(chunk + ":更新完fastdfs");
                         } catch (Exception e) {
@@ -518,6 +516,9 @@ public class FileServiceImpl implements FileService {
                             fileDTO.setFileSize(uploadSize);
                         }
                         tbFile.setSize(fileDTO.getFileSize());
+                        if (StrUtil.isBlank(fileDTO.getFileMd5())) {
+                            fileDTO.setFileMd5("33");
+                        }
                         tbFile.setMd5(fileDTO.getFileMd5());
                         tbFile.setUrl(redisPool.get(FileConstant.fastDfsPath + fileGUID));
                         tbFile.setLast_ver(nowDate);
@@ -541,11 +542,11 @@ public class FileServiceImpl implements FileService {
 
                         redisPool.del(new String[]{FileConstant.chunkCurr + fileGUID,
                                 FileConstant.sizeCurr + fileGUID,
-                                FileConstant.fastDfsGroup + fileGUID,
                                 FileConstant.fastDfsPath + fileGUID,
-                                FileConstant.currLocks + fileGUID,
                                 FileConstant.lockOwner + fileGUID
                         });
+                        redisPool.delIncr(FileConstant.currLocks + fileGUID,
+                                FileConstant.chunkLock + fileGUID);
                     }
 
 
@@ -559,7 +560,7 @@ public class FileServiceImpl implements FileService {
         } finally {
             //锁的当前拥有者才能释放块上传锁
             if (currOwner) {
-                redisPool.set(chunklockName, Integer.valueOf(0));
+                redisPool.freeIncr(chunklockName);
             }
 
         }

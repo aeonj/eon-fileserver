@@ -239,7 +239,8 @@ var chunkMap=new myMap();
             data.fileName = chunkMap.get(block.file.id).fileName;
             data.fileSize = chunkMap.get(block.file.id).fileSize;
             data.fileMd5 = chunkMap.get(block.file.id).fileMd5;
-            data.chunk = block.chunk+1;
+            var chunkCurr = chunkMap.get(block.file.id).chunkCurr;
+            data.chunk = block.chunk>=chunkCurr ? block.chunk+1 : chunkCurr;
             data.chunks = block.chunks;
             data.chunkSize=block.blob.size;
 
@@ -293,7 +294,7 @@ var chunkMap=new myMap();
 
         _uploader.on('uploadSuccess', function(file ,resp) {
             if (resp != null) {
-                if (resp.code==1) {
+                if (resp.code==0) {
                     console.log('uploadSuccess:', file, resp)
                     var item = $('#item_' + file.id);
                     item.find('.upload_state').text(file.statusText);

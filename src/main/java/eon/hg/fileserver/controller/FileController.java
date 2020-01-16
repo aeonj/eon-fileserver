@@ -216,7 +216,7 @@ public class FileController {
                     }
 
                     response.setContentType("application/octet-stream");
-                    response.addHeader("Content-Disposition", "attachment;filename=" + tbFile.getName());
+                    response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(tbFile.getName(),"UTF-8"));
 
                     OutputStream out = response.getOutputStream();
                     int n = 0;
@@ -288,7 +288,7 @@ public class FileController {
                 }
 
                 response.setContentType("application/octet-stream");
-                response.addHeader("Content-Disposition", "attachment;filename=" + tbFile.getName());
+                response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(tbFile.getName(),"UTF-8"));
 
                 InputStream ins = fileService.downloadFastChunkFile(tbFile.getUrl(),p,contentLength);
                 toOutStream(response,ins);

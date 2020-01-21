@@ -17,6 +17,7 @@ public class FileDTO {
     private Integer chunk;//当前是第几片
     private String date; //文件第一个分片上传的日期(如:20170122)
     private String pipe;
+    private String fastGroup;
 
     public void valid() {
         if (appNo==null)

@@ -75,7 +75,7 @@ public class FtpHandler {
             ftpClient.setBufferSize(1024 * 1024);
             ftpClient.setControlEncoding(encoding);
             ftpClient.enterLocalPassiveMode();
-            ftpClient.changeWorkingDirectory(baseDir);
+            //ftpClient.changeWorkingDirectory(baseDir);
 
             StringTokenizer dirs = new StringTokenizer(filePath, File.separator);
             String tempDir = "";
@@ -91,7 +91,8 @@ public class FtpHandler {
                 }
                 ;
             }
-            ftpClient.storeFile(fileName, ins);
+            fileName=new String(fileName.getBytes("utf-8"),"iso-8859-1");
+            ftpClient.appendFile(fileName,ins);
             ftpClient.logout();
         } catch (IOException e) {
             log.error("上传文件[" + fileName + "]失败");

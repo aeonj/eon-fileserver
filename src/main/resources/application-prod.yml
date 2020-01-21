@@ -68,7 +68,7 @@ mybatis:
 ## 打印sql语句
 logging:
   level:
-     eon.hg.fileserver.mapper: debug
+     eon.hg.fileserver.mapper: error
 
 #pagehelper分页插件
 pagehelper:

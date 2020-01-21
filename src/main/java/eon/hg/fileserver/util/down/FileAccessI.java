@@ -30,4 +30,17 @@ public class FileAccessI implements Serializable {
         }
         return n;
     }
+    public synchronized int read(byte[] b,int nStart,int nLen)
+    {
+        int n = -1;
+        try{
+            oSavedFile.read(b,nStart,nLen);
+            n = nLen;
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace ();
+        }
+        return n;
+    }
 }

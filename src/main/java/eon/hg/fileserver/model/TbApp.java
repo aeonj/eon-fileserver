@@ -13,4 +13,7 @@ public class TbApp {
 
     private FileType file_type;
 
+    //是否指定组
+    private String fast_group;
+
 }

@@ -6,10 +6,11 @@
     <result column="app_no" jdbcType="VARCHAR" property="app_no" />
     <result column="app_desc" jdbcType="VARCHAR" property="app_desc" />
     <result column="file_type" property="file_type" />
+    <result column="fast_group" jdbcType="VARCHAR" property="fast_group" />
   </resultMap>
 
   <sql id="Base_Column_List">
-    id, app_no, app_desc, file_type
+    id, app_no, app_desc, file_type, fast_group
   </sql>
 
   <select id="getAll" resultMap="BaseResultMap"  >
@@ -34,15 +35,17 @@
   </select>
 
   <insert id="insert" parameterType="eon.hg.fileserver.model.TbApp" useGeneratedKeys="true" keyProperty="id">
-    insert into tb_app (id, app_no, app_desc)
-    values (#{id}, #{app_no}, #{app_desc})
+    insert into tb_app (id, app_no, app_desc, file_type, fast_group)
+    values (#{id}, #{app_no}, #{app_desc}, #{file_type}, #{fast_group})
   </insert>
 
   <update id="update" parameterType="eon.hg.fileserver.model.TbApp">
     update tb_app
     set
     <if test="app_no != null">app_no = #{app_no},</if>
-    app_desc = #{app_desc}
+    app_desc = #{app_desc},
+    file_type = #{file_type},
+    fast_group = #{fast_group}
     where
     id = #{id}
   </update>

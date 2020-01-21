@@ -6,12 +6,14 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
+import com.github.tobato.fastdfs.domain.StorageNode;
 import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.exception.FdfsIOException;
 import com.github.tobato.fastdfs.exception.FdfsServerException;
 import com.github.tobato.fastdfs.exception.FdfsUnavailableException;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
+import com.github.tobato.fastdfs.service.TrackerClient;
 import eon.hg.fileserver.config.FileServerProperties;
 import eon.hg.fileserver.config.FtpProperties;
 import eon.hg.fileserver.enums.FileType;
@@ -68,7 +70,7 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private TbProfessionMapper professionMapper;
 
-    public Map<String,Object> checkNormalFile(String appNo, String appFileId) {
+    public Map<String, Object> checkNormalFile(String appNo, String appFileId) {
         TbApp app = appMapper.getByAppNo(appNo);
         if (app == null) {
             throw new ResultException(ResultBody.failed("该业务系统编号未登记"));
@@ -77,19 +79,19 @@ public class FileServiceImpl implements FileService {
             put("app_no", appNo);
             put("app_file_id", appFileId);
         }});
-        Map<String,Object> result = new HashMap();
+        Map<String, Object> result = new HashMap();
         if (tbProfessions != null && tbProfessions.size() > 0) {
             TbProfession tbProfession = tbProfessions.get(0);
             Long fileId_int = tbProfession.getFile_id();
-            if (fileId_int==null) {
+            if (fileId_int == null) {
                 professionMapper.delete(tbProfessions.get(0).getId());
             } else {
                 TbFile tbFile = fileMapper.getOne(fileId_int);
                 if (tbFile != null) {
-                    result.put("flag",1);
-                    result.put("url",tbFile.getUrl());
-                    result.put("name",tbFile.getName());
-                    result.put("pipe",tbProfession.getPipe());
+                    result.put("flag", 1);
+                    result.put("url", tbFile.getUrl());
+                    result.put("name", tbFile.getName());
+                    result.put("pipe", tbProfession.getPipe());
                     return result;
                 } else {
                     professionMapper.delete(tbProfessions.get(0).getId());
@@ -139,8 +141,18 @@ public class FileServiceImpl implements FileService {
             if (FileType.FASTDFS.equals(app.getFile_type())) {
                 try {
                     String suffix = FileUtil.extName(fileDTO.getFileName());
-                    StorePath storePath = fastFileClient.uploadFile(inputStream, fileDTO.getFileSize(), suffix, null);
-                    url = storePath.getFullPath();
+                    if (StrUtil.isBlank(app.getFast_group()) && StrUtil.isBlank(fileDTO.getFastGroup())) {
+                        StorePath storePath = fastFileClient.uploadFile(inputStream, fileDTO.getFileSize(), suffix, null);
+                        url = storePath.getFullPath();
+                    } else {
+                        //指定组上传
+                        String groupName = fileDTO.getFastGroup();
+                        if (StrUtil.isBlank(groupName)) {
+                            groupName = app.getFast_group();
+                        }
+                        StorePath storePath = fastFileClient.uploadFile(groupName, inputStream, fileDTO.getFileSize(), suffix);
+                        url = storePath.getFullPath();
+                    }
                 } catch (FdfsUnavailableException e) {
                     log.error(e.getMessage());
                     throw new ResultException(ResultBody.failed(ResultCode.FDFS_UNAVAILABLE));
@@ -174,13 +186,13 @@ public class FileServiceImpl implements FileService {
                 File saveFile = new File(saveDirectory.toString(), saveName.toString());
                 //验证路径是否存在，不存在则创建目录
                 saveFile = FileUtil.touch(saveFile);
-                FileUtil.writeFromStream(inputStream,saveFile);
+                FileUtil.writeFromStream(inputStream, saveFile);
                 url = savePath.append(File.separator).append(saveName).toString();
                 fileDTO.setFileSize(multipartFile.getSize());
                 fileDTO.setFileMd5(SecureUtil.md5(saveFile));
             } else if (FileType.FTP.equals(app.getFile_type())) {
                 FtpProperties ftpProp = fileServerProperties.getFtp();
-                if (ftpProp!=null) {
+                if (ftpProp != null) {
                     FtpHandler ftpUtils = new FtpHandler(ftpProp.getUsername(), ftpProp.getPassword(), ftpProp.getHost(), ftpProp.getPort(), ftpProp.getBaseDir());
                     StringBuilder ftpPath = new StringBuilder();
                     ftpPath.append(FileConstant.DEFAULT_SAVE_KEY)
@@ -193,6 +205,7 @@ public class FileServiceImpl implements FileService {
                     saveName.append(fileDTO.getFileId()).append(".").append(suffix);
                     try {
                         ftpUtils.uploadFile(ftpPath.toString(), saveName.toString(), inputStream);
+                        url = ftpPath.toString()+File.separator+saveName.toString();
                     } catch (IOException e) {
                         e.printStackTrace();
                         throw new ResultException(ResultBody.failed("FTP上传异常"));
@@ -200,6 +213,8 @@ public class FileServiceImpl implements FileService {
                         e.printStackTrace();
                         throw new ResultException(ResultBody.failed(e.getMessage()));
                     }
+                } else {
+                    throw new ResultException(ResultBody.failed("FTP参数未定义"));
                 }
             } else {
                 throw new ResultException(ResultBody.failed("未被支持的文件服务类型"));
@@ -234,14 +249,14 @@ public class FileServiceImpl implements FileService {
         return callback.recv(tbFile, null);
     }
 
-    public Map<String,Object> checkChunkFile(String appNo, String appFileId) {
-        Map<String,Object> result = checkNormalFile(appNo,appFileId);
-        if (result!=null && ObjectUtil.equal(result.get("flag"),Integer.valueOf(1))) {
+    public Map<String, Object> checkChunkFile(String appNo, String appFileId) {
+        Map<String, Object> result = checkNormalFile(appNo, appFileId);
+        if (result != null && ObjectUtil.equal(result.get("flag"), Integer.valueOf(1))) {
             return result;
         }
         //返回正在上传的文件块索引
         result = new HashMap<>();
-        result.put("flag",0);
+        result.put("flag", 0);
         TbApp app = appMapper.getByAppNo(appNo);
         if (FileType.FASTDFS.equals(app.getFile_type())) {
             String fileGUID = appNo + "_" + appFileId;
@@ -253,7 +268,7 @@ public class FileServiceImpl implements FileService {
                 String chunkCurrkey = FileConstant.chunkCurr + fileGUID;
                 String sizeCurrKey = FileConstant.sizeCurr + fileGUID;
                 if (lock > 1) {
-                    result.put("chunk",2);
+                    result.put("chunk", 2);
                     //检查是否为锁的拥有者,如果是放行
                     String oWner = redisPool.get(lockOwner);
                     if (StrUtil.isEmpty(oWner)) {
@@ -265,7 +280,7 @@ public class FileServiceImpl implements FileService {
                                 new ResultException(ResultBody.failed("无法获取当前文件chunkCurr"));
                             }
 
-                            result.put("chunk",chunkCurr);
+                            result.put("chunk", chunkCurr);
                             return result;
                         } else {
                             new ResultException(ResultBody.failed("当前文件已有人在上传,您暂无法上传该文件"));
@@ -276,8 +291,8 @@ public class FileServiceImpl implements FileService {
                     redisPool.set(lockOwner, appNo);
                     //第一块索引是0,与前端保持一致
                     redisPool.set(chunkCurrkey, Integer.valueOf(1));
-                    redisPool.set(sizeCurrKey,Long.valueOf(0));
-                    result.put("chunk",1);
+                    redisPool.set(sizeCurrKey, Long.valueOf(0));
+                    result.put("chunk", 1);
                     return result;
                 }
             } catch (Exception e) {
@@ -285,20 +300,20 @@ public class FileServiceImpl implements FileService {
                 new ResultException(ResultBody.failed("检查文件出错"));
             }
         } else if (FileType.LOCAL.equals(app.getFile_type())) {
-            result.put("chunk",1);
+            result.put("chunk", 1);
             return result;
         }
         return null;
     }
 
     public <T> T uploadChunkFile(FileDTO fileDTO, MultipartFile multipartFile, FileCallback<T> callback) {
-        if (fileDTO.getChunk()==null)
+        if (fileDTO.getChunk() == null)
             throw new ResultException(ResultBody.failed("参数【chunk】不能为空"));
-        if (fileDTO.getChunks()==null)
+        if (fileDTO.getChunks() == null)
             throw new ResultException(ResultBody.failed("参数【chunks】不能为空"));
-        if (fileDTO.getChunks()<1)
+        if (fileDTO.getChunks() < 1)
             throw new ResultException(ResultBody.failed("参数【chunk】不能小于1"));
-        if (fileDTO.getChunks()<1)
+        if (fileDTO.getChunks() < 1)
             throw new ResultException(ResultBody.failed("参数【chunks】不能小于1"));
 
         TbApp app = appMapper.getByAppNo(fileDTO.getAppNo());
@@ -315,6 +330,9 @@ public class FileServiceImpl implements FileService {
                 throw new ResultException(ResultBody.failed("该业务系统文件已上传结束"));
         }
         if (FileType.FASTDFS.equals(app.getFile_type())) {
+            if (StrUtil.isBlank(fileDTO.getFastGroup())) {
+                fileDTO.setFastGroup(app.getFast_group());
+            }
             return uploadChunkFile_FastDFS(fileDTO, multipartFile, callback);
         } else if (FileType.LOCAL.equals(app.getFile_type())) {
             return uploadChunkFile_Local(fileDTO, multipartFile, callback);
@@ -377,7 +395,7 @@ public class FileServiceImpl implements FileService {
 
                         File newFile = new File(fileServerProperties.getUploadFolder() + savePath, fileDTO.getFileId() + "." + suffix);
                         FileOutputStream outputStream = new FileOutputStream(newFile, true);//文件追加写入
-                        byte[] byt = new byte[10 * 1024 * 1024];
+                        byte[] byt = new byte[8192];
                         int len;
 
                         FileInputStream temp = null;//分片文件
@@ -421,14 +439,14 @@ public class FileServiceImpl implements FileService {
                         //清楚分片文件及目录
                         FileUtil.del(saveDirectory.toString());
 
-                        return callback.recv(tbFile,null);
+                        return callback.recv(tbFile, null);
                     }
                 }
             }
         } catch (IOException e) {
             throw new ResultException(ResultBody.failed(ResultCode.FILE_IO_ERROR));
         }
-        return callback.recv(null,null);
+        return callback.recv(null, null);
     }
 
     public <T> T uploadChunkFile_FastDFS(FileDTO fileDTO, MultipartFile multipartFile, FileCallback<T> callback) {
@@ -450,9 +468,9 @@ public class FileServiceImpl implements FileService {
             String chunkCurrkey = FileConstant.chunkCurr + fileGUID; //redis中记录当前应该穿第几块(从0开始)
             Integer chunkCurr = redisPool.get(chunkCurrkey);
             if (ObjectUtil.isNull(chunkCurr)) {
-                if (fileDTO.getChunk()==1) {
+                if (fileDTO.getChunk() == 1) {
                     chunkCurr = Integer.valueOf(1);
-                    redisPool.set(chunkCurrkey,chunkCurr);
+                    redisPool.set(chunkCurrkey, chunkCurr);
                 } else {
                     throw new ResultException(ResultBody.failed("无法获取当前文件chunkCurr"));
                 }
@@ -466,13 +484,13 @@ public class FileServiceImpl implements FileService {
             String sizeCurrKey = FileConstant.sizeCurr + fileGUID; //redis中记录当前已经传了多少内容
             Long sizeCurr = redisPool.get(sizeCurrKey);
             if (ObjectUtil.isNull(sizeCurr)) {
-                if (fileDTO.getChunk()==1) {
-                    redisPool.set(sizeCurrKey,Long.valueOf(0));
+                if (fileDTO.getChunk() == 1) {
+                    sizeCurr = Long.valueOf(0);
+                    redisPool.set(sizeCurrKey, sizeCurr);
                 } else {
                     throw new ResultException(ResultBody.failed("无法获取当前文件sizeCurr"));
                 }
             }
-
 
 
             //  System.out.println("***********开始**********");
@@ -484,7 +502,7 @@ public class FileServiceImpl implements FileService {
                         redisPool.set(chunkCurrkey, chunkCurr + 1);
                         log.debug(chunk + ":redis块+1");
                         try {
-                            StorePath storePath = storageClient.uploadAppenderFile(null, multipartFile.getInputStream(),
+                            StorePath storePath = storageClient.uploadAppenderFile(fileDTO.getFastGroup(), multipartFile.getInputStream(),
                                     fileSize, FileUtil.extName(fileDTO.getFileName()));
                             log.debug(chunk + ":更新完fastdfs");
                             if (storePath == null) {
@@ -538,7 +556,7 @@ public class FileServiceImpl implements FileService {
                         TbFile tbFile = new TbFile();
                         tbFile.setName(fileDTO.getFileName());
                         tbFile.setPath(null);
-                        if (fileDTO.getFileSize()==null || fileDTO.getFileSize()<=0) {
+                        if (fileDTO.getFileSize() == null || fileDTO.getFileSize() <= 0) {
                             fileDTO.setFileSize(uploadSize);
                         }
                         tbFile.setSize(fileDTO.getFileSize());
@@ -573,7 +591,7 @@ public class FileServiceImpl implements FileService {
                         });
                         redisPool.delIncr(FileConstant.currLocks + fileGUID,
                                 FileConstant.chunkLock + fileGUID);
-                        return callback.recv(tbFile,null);
+                        return callback.recv(tbFile, null);
                     }
 
 
@@ -649,6 +667,8 @@ public class FileServiceImpl implements FileService {
                 e.printStackTrace();
                 throw new ResultException(ResultBody.failed("未找到该文件"));
             }
+        } else if (FileType.FTP.equals(tbFile.getType())) {
+            return callback.recv(tbFile, downloadFtpFile(tbFile.getUrl()));
         } else {
             throw new ResultException(ResultBody.failed("未被支持的文件服务类型"));
         }
@@ -662,6 +682,26 @@ public class FileServiceImpl implements FileService {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             throw new ResultException(ResultBody.failed("未找到该文件"));
+        }
+    }
+
+    public InputStream downloadFtpFile(String url) {
+        FtpProperties ftpProp = fileServerProperties.getFtp();
+        if (ftpProp != null) {
+            try {
+                FtpHandler ftpUtils = new FtpHandler(ftpProp.getUsername(), ftpProp.getPassword(), ftpProp.getHost(), ftpProp.getPort(), ftpProp.getBaseDir());
+                String path = FileUtil.getAbsolutePath(url);
+                String name = FileUtil.getName(url);
+                return ftpUtils.getFileInputStream(path, name);
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new ResultException(ResultBody.failed("FTP上传异常"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ResultException(ResultBody.failed(e.getMessage()));
+            }
+        } else {
+            throw new ResultException(ResultBody.failed("FTP参数未定义"));
         }
     }
 
@@ -691,9 +731,9 @@ public class FileServiceImpl implements FileService {
             throw new ResultException(ResultBody.failed("参数【url】不可为空"));
         }
         if (FileType.FASTDFS.equals(app.getFile_type())) {
-            return fileServerProperties.getServerUrl()+path;
+            return fileServerProperties.getServerUrl() + path;
         } else if (FileType.LOCAL.equals(app.getFile_type())) {
-            return "/file/local/download?url="+fileServerProperties.getUploadFolder()+path;
+            return "/file/local/download?url=" + fileServerProperties.getUploadFolder() + path;
         } else {
             throw new ResultException(ResultBody.failed("未被支持的文件服务类型"));
         }

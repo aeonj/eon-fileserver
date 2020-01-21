@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -66,9 +65,7 @@ public class FileController {
             if (tbFile==null) {
                 return ResultBody.success();
             } else {
-                Map map = new HashMap();
-                map.put("url", tbFile.getUrl());
-                return ResultBody.success().addObject(tbFile);
+                return ResultBody.success().addObject(tbFile.getUrl());
             }
         });
     }

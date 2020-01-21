@@ -573,6 +573,7 @@ public class FileServiceImpl implements FileService {
                         });
                         redisPool.delIncr(FileConstant.currLocks + fileGUID,
                                 FileConstant.chunkLock + fileGUID);
+                        return callback.recv(tbFile,null);
                     }
 
 

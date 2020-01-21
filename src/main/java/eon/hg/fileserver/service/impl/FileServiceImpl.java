@@ -13,6 +13,7 @@ import com.github.tobato.fastdfs.exception.FdfsUnavailableException;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import eon.hg.fileserver.config.FileServerProperties;
+import eon.hg.fileserver.config.FtpProperties;
 import eon.hg.fileserver.enums.FileType;
 import eon.hg.fileserver.exception.ResultException;
 import eon.hg.fileserver.mapper.TbAppMapper;
@@ -30,6 +31,7 @@ import eon.hg.fileserver.util.callback.DownloadInputStreamWriter;
 import eon.hg.fileserver.util.callback.FileCallback;
 import eon.hg.fileserver.util.constant.FileConstant;
 import eon.hg.fileserver.util.dto.FileDTO;
+import eon.hg.fileserver.util.file.FtpHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -176,6 +178,29 @@ public class FileServiceImpl implements FileService {
                 url = savePath.append(File.separator).append(saveName).toString();
                 fileDTO.setFileSize(multipartFile.getSize());
                 fileDTO.setFileMd5(SecureUtil.md5(saveFile));
+            } else if (FileType.FTP.equals(app.getFile_type())) {
+                FtpProperties ftpProp = fileServerProperties.getFtp();
+                if (ftpProp!=null) {
+                    FtpHandler ftpUtils = new FtpHandler(ftpProp.getUsername(), ftpProp.getPassword(), ftpProp.getHost(), ftpProp.getPort(), ftpProp.getBaseDir());
+                    StringBuilder ftpPath = new StringBuilder();
+                    ftpPath.append(FileConstant.DEFAULT_SAVE_KEY)
+                            .append(File.separator)
+                            .append(fileDTO.getAppNo())
+                            .append(File.separator)
+                            .append(DateUtil.today());
+                    String suffix = FileUtil.extName(fileDTO.getFileName());
+                    StringBuilder saveName = new StringBuilder();
+                    saveName.append(fileDTO.getFileId()).append(".").append(suffix);
+                    try {
+                        ftpUtils.uploadFile(ftpPath.toString(), saveName.toString(), inputStream);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        throw new ResultException(ResultBody.failed("FTP上传异常"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        throw new ResultException(ResultBody.failed(e.getMessage()));
+                    }
+                }
             } else {
                 throw new ResultException(ResultBody.failed("未被支持的文件服务类型"));
             }
@@ -426,7 +451,8 @@ public class FileServiceImpl implements FileService {
             Integer chunkCurr = redisPool.get(chunkCurrkey);
             if (ObjectUtil.isNull(chunkCurr)) {
                 if (fileDTO.getChunk()==1) {
-                    redisPool.set(chunkCurrkey,Integer.valueOf(1));
+                    chunkCurr = Integer.valueOf(1);
+                    redisPool.set(chunkCurrkey,chunkCurr);
                 } else {
                     throw new ResultException(ResultBody.failed("无法获取当前文件chunkCurr"));
                 }

@@ -34,21 +34,23 @@ public class FileSplitterFetch extends Thread {
                 httpConnection.setRequestProperty("RANGE",sProperty);
                 Utility.log(sProperty);
                 InputStream input = httpConnection.getInputStream();
-//logResponseHead(httpConnection);
+                //logResponseHead(httpConnection);
                 byte[] b = new byte[1024];
                 int nRead;
                 while((nRead=input.read(b,0,1024)) > 0 && nStartPos < nEndPos
                         && !bStop)
                 {
                     nStartPos += fileAccessI.write(b,0,nRead);
-//if(nThreadID == 1)
-// Utility.log("nStartPos = " + nStartPos + ", nEndPos = " + nEndPos);
+                //if(nThreadID == 1)
+                // Utility.log("nStartPos = " + nStartPos + ", nEndPos = " + nEndPos);
                 }
                 Utility.log("Thread " + nThreadID + " is over!");
                 bDownOver = true;
-//nPos = fileAccessI.write (b,0,nRead);
+                //nPos = fileAccessI.write (b,0,nRead);
             }
-            catch(Exception e){e.printStackTrace ();}
+            catch(Exception e){
+                e.printStackTrace ();
+            }
         }
     }
     // 打印回应的头信息

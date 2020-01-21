@@ -14,4 +14,5 @@ public class FileServerProperties {
     private String cacheType;
     private String uploadFolder;
     private String serverUrl;
+    private FtpProperties ftp;
 }

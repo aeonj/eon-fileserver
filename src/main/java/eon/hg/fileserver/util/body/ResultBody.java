@@ -75,6 +75,17 @@ public class ResultBody {
         return resultBody;
     }
 
+    /**
+     * 业务数据失败，返回自定义的错误类型，错误提示自行提供
+     * @param reason
+     * @return
+     */
+    public static ResultBody failed(Integer code, String reason) {
+        ResultBody resultBody = new ResultBody(code);
+        resultBody.setMsg(reason);
+        return resultBody;
+    }
+
     public ResultBody addObject(Object o) {
         setData(o);
         return this;

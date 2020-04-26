@@ -6,19 +6,19 @@ import eon.hg.fileserver.mapper.TbProfessionMapper;
 import eon.hg.fileserver.model.TbFile;
 import eon.hg.fileserver.service.ManageService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Slf4j
 @Service
 public class ManageServiceImpl implements ManageService {
-    @Autowired
+    @Resource
     private TbAppMapper appMapper;
-    @Autowired
+    @Resource
     private TbFileMapper fileMapper;
-    @Autowired
+    @Resource
     private TbProfessionMapper professionMapper;
 
     @Override

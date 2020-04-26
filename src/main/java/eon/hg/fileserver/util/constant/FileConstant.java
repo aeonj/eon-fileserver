@@ -28,4 +28,23 @@ public class FileConstant {
     // 继续添加删除的文件,这时候要加锁来阻止其上传,否则会出现丢块问题,
     // 因为fastdfs上传不像迅雷下载一样,下载时会创建一个完整的文件,如果上传第一块时,服务器能快速创建一个大文件0填充,那么这样可以支持并发乱序来下载文件块,上传速度会成倍提升,要实现乱序下载文件块,估计就得研究fastdfs源码了)
     public final static String chunkLock = lock + "chunkLock:";
+
+    /**
+     * token部分
+     */
+    /**
+     * 存储当前登录用户id的字段名
+     */
+    public static final String CURRENT_USER_ID = "CURRENT_USER_ID";
+    /**
+     * token有效期（小时）
+     */
+    public static final int TOKEN_EXPIRES_HOUR = 12;
+
+    /**
+     * 存放Authorization的header字段
+     */
+    public static final String AUTHORIZATION = "authorization";
+
+    public static final String SECRET_KEY ="jshg_#@2018";
 }

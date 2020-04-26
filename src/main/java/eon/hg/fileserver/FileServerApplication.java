@@ -7,12 +7,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableMBeanExport;
 import org.springframework.context.annotation.Import;
 import org.springframework.jmx.support.RegistrationPolicy;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @Import(FdfsClientConfig.class)
 @MapperScan("eon.hg.fileserver.mapper")
 //解决jmx注册冲突
 @EnableMBeanExport(registration = RegistrationPolicy.IGNORE_EXISTING)
+@EnableScheduling
 public class FileServerApplication {
 
     public static void main(String[] args) {

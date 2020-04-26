@@ -6,14 +6,12 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
-import com.github.tobato.fastdfs.domain.StorageNode;
 import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.exception.FdfsIOException;
 import com.github.tobato.fastdfs.exception.FdfsServerException;
 import com.github.tobato.fastdfs.exception.FdfsUnavailableException;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
-import com.github.tobato.fastdfs.service.TrackerClient;
 import eon.hg.fileserver.config.FileServerProperties;
 import eon.hg.fileserver.config.FtpProperties;
 import eon.hg.fileserver.enums.FileType;
@@ -39,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
@@ -63,11 +62,11 @@ public class FileServiceImpl implements FileService {
     private RedisPool redisPool;
     @Autowired
     private CachePool cachePool;
-    @Autowired
+    @Resource
     private TbAppMapper appMapper;
-    @Autowired
+    @Resource
     private TbFileMapper fileMapper;
-    @Autowired
+    @Resource
     private TbProfessionMapper professionMapper;
 
     public Map<String, Object> checkNormalFile(String appNo, String appFileId) {

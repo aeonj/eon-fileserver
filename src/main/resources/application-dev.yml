@@ -82,6 +82,10 @@ server:
 
 eon:
   hg:
+    async:
+      corePoolSize : 10
+      maxPoolSize : 200
+      queueCapacity : 10
     file-server:
       uploadFolder: /Users/aeon/Documents/uploadfile/
       serverUrl: http://192.168.10.253:8888/ #上传远程服务器访问地址

@@ -1,6 +1,7 @@
 package eon.hg.fileserver.exception;
 
 import eon.hg.fileserver.util.body.ResultBody;
+import eon.hg.fileserver.util.body.ResultCode;
 
 /**
  * 前端同一异常处理
@@ -12,12 +13,45 @@ public class ResultException extends RuntimeException {
     private String msg;
     private ResultBody body;
 
+    public ResultException(String msg) {
+        super(msg);
+        this.code = ResultCode.FAILED.getCode();
+        this.msg = msg;
+    }
+
+    public ResultException(Throwable cause) {
+        super(cause);
+        this.code = ResultCode.FAILED.getCode();
+        this.msg = cause.getMessage();
+    }
+
+    public ResultException(String msg, Throwable cause) {
+        super(msg,cause);
+        this.code = ResultCode.FAILED.getCode();
+        this.msg = msg;
+    }
+
     public ResultException(Integer code, String msg) {
+        super(msg);
+        this.code = code;
+        this.msg = msg;
+    }
+
+    public ResultException(Integer code, String msg, Throwable cause) {
+        super(msg,cause);
         this.code = code;
         this.msg = msg;
     }
 
     public ResultException(ResultBody body) {
+        super(body.getMsg());
+        this.code = body.getCode();
+        this.msg = body.getMsg();
+        this.body = body;
+    }
+
+    public ResultException(ResultBody body, Throwable cause) {
+        super(body.getMsg(),cause);
         this.code = body.getCode();
         this.msg = body.getMsg();
         this.body = body;

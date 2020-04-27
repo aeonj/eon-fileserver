@@ -5,6 +5,7 @@ import eon.hg.fileserver.authorization.annotation.Authorization;
 import eon.hg.fileserver.authorization.manager.TokenManager;
 import eon.hg.fileserver.authorization.model.TokenModel;
 import eon.hg.fileserver.exception.AuthorizationException;
+import eon.hg.fileserver.service.MonitorService;
 import eon.hg.fileserver.util.constant.FileConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ import java.lang.reflect.Method;
 public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
 
     @Autowired
+    private MonitorService monitorService;
+    @Autowired
     private TokenManager manager;
     Logger logger = LoggerFactory.getLogger(AuthorizationInterceptor.class);
 
@@ -30,6 +33,7 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
         logger.info(request.getRequestURI());
         //如果不是映射到方法直接通过
         if (!(handler instanceof HandlerMethod)) {
+            monitorService.listGroupInfo();
             return true;
         }
         HandlerMethod handlerMethod = (HandlerMethod) handler;

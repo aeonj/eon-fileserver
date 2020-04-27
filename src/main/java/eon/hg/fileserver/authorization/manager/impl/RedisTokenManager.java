@@ -4,23 +4,19 @@ package eon.hg.fileserver.authorization.manager.impl;
 import eon.hg.fileserver.authorization.manager.TokenManager;
 import eon.hg.fileserver.authorization.model.TokenModel;
 import eon.hg.fileserver.util.constant.FileConstant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("ALL")
-@Component
+@Service
 public class RedisTokenManager implements TokenManager {
-    Logger logger = LoggerFactory.getLogger(RedisTokenManager.class);
     @Autowired
     private RedisTemplate<String, String> redis;
-    private String salt = "ecms:oa:";
+    private String salt = "eon:hg:file-server";
 
     public  void setRedis(RedisTemplate redis) {
         this.redis = redis;

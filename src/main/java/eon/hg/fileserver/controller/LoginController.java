@@ -28,8 +28,6 @@ public class LoginController {
 
     @RequestMapping(value = "/login",method = RequestMethod.GET)
     public ResponseEntity<ResultBody> login(@RequestParam String username, @RequestParam String password) {
-
-
         User user = userService.getUserByAccount(username);
 
         if (user == null ||  //未注册

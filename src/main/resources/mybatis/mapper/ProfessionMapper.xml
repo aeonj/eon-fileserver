@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="eon.hg.fileserver.mapper.TbProfessionMapper">
-  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.TbProfession">
+<mapper namespace="eon.hg.fileserver.mapper.ProfessionMapper">
+  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.Profession">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="app_no" jdbcType="VARCHAR" property="app_no" />
     <result column="app_file_id" jdbcType="VARCHAR" property="app_file_id" />
@@ -37,14 +37,14 @@
     app_no = #{app_no} and app_file_id = #{app_file_id}
   </select>
 
-  <insert id="insert" parameterType="eon.hg.fileserver.model.TbProfession" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="eon.hg.fileserver.model.Profession" useGeneratedKeys="true" keyProperty="id">
     insert into tb_profession (id, app_no,
       app_file_id, file_id, app_ip, pipe, status, last_ver)
     values (#{id}, #{app_no},
       #{app_file_id}, #{file_id}, #{app_ip}, #{pipe}, #{status}, #{last_ver})
   </insert>
 
-  <update id="update" parameterType="eon.hg.fileserver.model.TbProfession">
+  <update id="update" parameterType="eon.hg.fileserver.model.Profession">
     update tb_profession
     set
     <if test="url != null">url = #{url},</if>

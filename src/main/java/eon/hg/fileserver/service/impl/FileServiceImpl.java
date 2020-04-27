@@ -16,12 +16,12 @@ import eon.hg.fileserver.config.FileServerProperties;
 import eon.hg.fileserver.config.FtpProperties;
 import eon.hg.fileserver.enums.FileType;
 import eon.hg.fileserver.exception.ResultException;
-import eon.hg.fileserver.mapper.TbAppMapper;
-import eon.hg.fileserver.mapper.TbFileMapper;
-import eon.hg.fileserver.mapper.TbProfessionMapper;
-import eon.hg.fileserver.model.TbApp;
-import eon.hg.fileserver.model.TbFile;
-import eon.hg.fileserver.model.TbProfession;
+import eon.hg.fileserver.mapper.AppMapper;
+import eon.hg.fileserver.mapper.FileMapper;
+import eon.hg.fileserver.mapper.ProfessionMapper;
+import eon.hg.fileserver.model.App;
+import eon.hg.fileserver.model.FileInfo;
+import eon.hg.fileserver.model.Profession;
 import eon.hg.fileserver.service.FileService;
 import eon.hg.fileserver.util.body.ResultBody;
 import eon.hg.fileserver.util.body.ResultCode;
@@ -63,29 +63,29 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private CachePool cachePool;
     @Resource
-    private TbAppMapper appMapper;
+    private AppMapper appMapper;
     @Resource
-    private TbFileMapper fileMapper;
+    private FileMapper fileMapper;
     @Resource
-    private TbProfessionMapper professionMapper;
+    private ProfessionMapper professionMapper;
 
     public Map<String, Object> checkNormalFile(String appNo, String appFileId) {
-        TbApp app = appMapper.getByAppNo(appNo);
+        App app = appMapper.getByAppNo(appNo);
         if (app == null) {
             throw new ResultException(ResultBody.failed("该业务系统编号未登记"));
         }
-        List<TbProfession> tbProfessions = professionMapper.selectByMap(new HashMap<String, Object>() {{
+        List<Profession> tbProfessions = professionMapper.selectByMap(new HashMap<String, Object>() {{
             put("app_no", appNo);
             put("app_file_id", appFileId);
         }});
         Map<String, Object> result = new HashMap();
         if (tbProfessions != null && tbProfessions.size() > 0) {
-            TbProfession tbProfession = tbProfessions.get(0);
+            Profession tbProfession = tbProfessions.get(0);
             Long fileId_int = tbProfession.getFile_id();
             if (fileId_int == null) {
                 professionMapper.delete(tbProfessions.get(0).getId());
             } else {
-                TbFile tbFile = fileMapper.getOne(fileId_int);
+                FileInfo tbFile = fileMapper.getOne(fileId_int);
                 if (tbFile != null) {
                     result.put("flag", 1);
                     result.put("url", tbFile.getUrl());
@@ -103,17 +103,17 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public TbFile uploadNormalFile(FileDTO fileDTO, MultipartFile multipartFile) {
+    public FileInfo uploadNormalFile(FileDTO fileDTO, MultipartFile multipartFile) {
         return uploadNormalFile(fileDTO, multipartFile, (tbFile, ins) -> tbFile);
     }
 
     @Override
     public <T> T uploadNormalFile(FileDTO fileDTO, MultipartFile multipartFile, FileCallback<T> callback) {
-        TbApp app = appMapper.getByAppNo(fileDTO.getAppNo());
+        App app = appMapper.getByAppNo(fileDTO.getAppNo());
         if (app == null) {
             throw new ResultException(ResultBody.failed("该业务系统编号未登记"));
         }
-        List<TbProfession> tbProfessions = professionMapper.selectByMap(new HashMap<String, Object>() {{
+        List<Profession> tbProfessions = professionMapper.selectByMap(new HashMap<String, Object>() {{
             put("app_no", fileDTO.getAppNo());
             put("app_file_id", fileDTO.getFileId());
         }});
@@ -133,8 +133,8 @@ public class FileServiceImpl implements FileService {
             e.printStackTrace();
             throw new ResultException(ResultBody.failed("传入的文件为空"));
         }
-        List<TbFile> tbFiles = fileMapper.selectByMd5(fileDTO.getFileMd5());
-        TbFile tbFile;
+        List<FileInfo> tbFiles = fileMapper.selectByMd5(fileDTO.getFileMd5());
+        FileInfo tbFile;
         if (tbFiles == null || tbFiles.size() == 0) {
             String url = null;
             if (FileType.FASTDFS.equals(app.getFile_type())) {
@@ -219,7 +219,7 @@ public class FileServiceImpl implements FileService {
                 throw new ResultException(ResultBody.failed("未被支持的文件服务类型"));
             }
             //持久化存储
-            tbFile = new TbFile();
+            tbFile = new FileInfo();
             tbFile.setName(fileDTO.getFileName());
             tbFile.setPath(null);
             tbFile.setSize(fileDTO.getFileSize());
@@ -235,7 +235,7 @@ public class FileServiceImpl implements FileService {
         }
 
         //初始化业务对象
-        TbProfession tbProfession = new TbProfession();
+        Profession tbProfession = new Profession();
         tbProfession.setApp_no(fileDTO.getAppNo());
         tbProfession.setApp_file_id(fileDTO.getFileId());
         tbProfession.setFile_id(tbFile.getId());
@@ -256,7 +256,7 @@ public class FileServiceImpl implements FileService {
         //返回正在上传的文件块索引
         result = new HashMap<>();
         result.put("flag", 0);
-        TbApp app = appMapper.getByAppNo(appNo);
+        App app = appMapper.getByAppNo(appNo);
         if (FileType.FASTDFS.equals(app.getFile_type())) {
             String fileGUID = appNo + "_" + appFileId;
             try {
@@ -315,16 +315,16 @@ public class FileServiceImpl implements FileService {
         if (fileDTO.getChunks() < 1)
             throw new ResultException(ResultBody.failed("参数【chunks】不能小于1"));
 
-        TbApp app = appMapper.getByAppNo(fileDTO.getAppNo());
+        App app = appMapper.getByAppNo(fileDTO.getAppNo());
         if (app == null) {
             throw new ResultException(ResultBody.failed("该业务系统编号未登记"));
         }
-        List<TbProfession> tbProfessions = professionMapper.selectByMap(new HashMap<String, Object>() {{
+        List<Profession> tbProfessions = professionMapper.selectByMap(new HashMap<String, Object>() {{
             put("app_no", fileDTO.getAppNo());
             put("app_file_id", fileDTO.getFileId());
         }});
         if (tbProfessions != null && tbProfessions.size() > 0) {
-            TbProfession profession = tbProfessions.get(0);
+            Profession profession = tbProfessions.get(0);
             if (profession.isStatus())
                 throw new ResultException(ResultBody.failed("该业务系统文件已上传结束"));
         }
@@ -411,7 +411,7 @@ public class FileServiceImpl implements FileService {
                         outputStream.close();
 
                         String nowDate = DateUtil.now();
-                        TbFile tbFile = new TbFile();
+                        FileInfo tbFile = new FileInfo();
                         tbFile.setName(fileDTO.getFileName());
                         tbFile.setPath(null);
                         tbFile.setSize(FileUtil.size(newFile));
@@ -424,7 +424,7 @@ public class FileServiceImpl implements FileService {
                         fileMapper.insert(tbFile);
 
                         //初始化业务对象
-                        TbProfession tbProfession = new TbProfession();
+                        Profession tbProfession = new Profession();
                         tbProfession.setApp_no(fileDTO.getAppNo());
                         tbProfession.setApp_file_id(fileDTO.getFileId());
                         tbProfession.setFile_id(tbFile.getId());
@@ -552,7 +552,7 @@ public class FileServiceImpl implements FileService {
                     if (fileDTO.getChunk() == chunks_int) {
                         String nowDate = DateUtil.now();
                         //持久化存储
-                        TbFile tbFile = new TbFile();
+                        FileInfo tbFile = new FileInfo();
                         tbFile.setName(fileDTO.getFileName());
                         tbFile.setPath(null);
                         if (fileDTO.getFileSize() == null || fileDTO.getFileSize() <= 0) {
@@ -571,7 +571,7 @@ public class FileServiceImpl implements FileService {
                         fileMapper.insert(tbFile);
 
                         //初始化业务对象
-                        TbProfession tbProfession = new TbProfession();
+                        Profession tbProfession = new Profession();
                         tbProfession.setApp_no(fileDTO.getAppNo());
                         tbProfession.setApp_file_id(fileDTO.getFileId());
                         tbProfession.setFile_id(tbFile.getId());
@@ -612,16 +612,16 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public TbFile getFile(String appNo, String appFileId) {
+    public FileInfo getFile(String appNo, String appFileId) {
         if (StrUtil.isBlank(appNo))
             throw new ResultException(ResultBody.failed("参数【appNo】不可为空"));
         if (StrUtil.isBlank(appFileId))
             throw new ResultException(ResultBody.failed("参数【fileId】不可为空"));
-        TbApp app = appMapper.getByAppNo(appNo);
+        App app = appMapper.getByAppNo(appNo);
         if (app == null) {
             throw new ResultException(ResultBody.failed("该业务系统编号未登记"));
         }
-        List<TbProfession> professions = professionMapper.selectByMap(new HashMap<String, Object>() {{
+        List<Profession> professions = professionMapper.selectByMap(new HashMap<String, Object>() {{
             put("app_no", appNo);
             put("app_file_id", appFileId);
         }});
@@ -630,7 +630,7 @@ public class FileServiceImpl implements FileService {
             if (tbFileId == null) {
                 throw new ResultException(ResultBody.failed("对应文件已被删除"));
             } else {
-                TbFile tbFile = fileMapper.getOne(tbFileId);
+                FileInfo tbFile = fileMapper.getOne(tbFileId);
                 if (tbFile == null) {
                     throw new ResultException(ResultBody.failed("对应文件ID记录空值"));
                 } else {
@@ -643,13 +643,13 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public TbFile downloadNormalFile(String appNo, String appFileId) {
+    public FileInfo downloadNormalFile(String appNo, String appFileId) {
         return downloadNormalFile(appNo, appFileId, (tbFile, ins) -> tbFile);
     }
 
     @Override
     public <T> T downloadNormalFile(String appNo, String fileId, FileCallback<T> callback) {
-        TbFile tbFile = getFile(appNo, fileId);
+        FileInfo tbFile = getFile(appNo, fileId);
         if (FileType.FASTDFS.equals(tbFile.getType())) {
 
             //return fileServerProperties.getServerUrl()+tbFile.getUrl();
@@ -722,7 +722,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String getFileFullUrl(String appNo, String path) {
-        TbApp app = appMapper.getByAppNo(appNo);
+        App app = appMapper.getByAppNo(appNo);
         if (app == null) {
             throw new ResultException(ResultBody.failed("该业务系统编号未登记"));
         }
@@ -746,7 +746,7 @@ public class FileServiceImpl implements FileService {
             throw new ResultException(ResultBody.failed("参数【fileId】不可为空"));
         if (StrUtil.isBlank(fileMd5))
             throw new ResultException(ResultBody.failed("参数【fileMd5】不可为空"));
-        List<TbProfession> tbProfessions = professionMapper.selectByMap(new HashMap<String, Object>() {{
+        List<Profession> tbProfessions = professionMapper.selectByMap(new HashMap<String, Object>() {{
             put("app_no", appNo);
             put("app_file_id", appFileId);
         }});
@@ -757,7 +757,7 @@ public class FileServiceImpl implements FileService {
             throw new ResultException(ResultBody.failed("传入的系统编号和系统文件id有误"));
         }
         //找到该文件记录
-        TbProfession tbProfession = tbProfessions.get(0);
+        Profession tbProfession = tbProfessions.get(0);
         //得到文件id
         Long fileId = tbProfession.getFile_id();
         //删除文件
@@ -766,7 +766,7 @@ public class FileServiceImpl implements FileService {
         }
 
         // 业务表中只有一条记录
-        TbFile tbFile = fileMapper.getOne(fileId);
+        FileInfo tbFile = fileMapper.getOne(fileId);
         if (tbFile == null) {
             throw new ResultException(ResultBody.failed("服务器中不存在该文件"));
         } else {

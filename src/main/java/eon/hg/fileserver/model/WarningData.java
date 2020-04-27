@@ -2,7 +2,7 @@ package eon.hg.fileserver.model;
 
 import java.io.Serializable;
 
-public class TbWarningData implements Serializable {
+public class WarningData implements Serializable {
     private Long id;
     private long wdFreeMB;  //free disk storage in MB
     private String wdCpu;
@@ -10,10 +10,10 @@ public class TbWarningData implements Serializable {
     private String wdIpAddr;
     private String wdGroupName;
 
-    public TbWarningData() {
+    public WarningData() {
     }
 
-    public TbWarningData(Long id, long wdFreeMB, String wdCpu, float wdMem, String wdIpAddr, String wdGroupName) {
+    public WarningData(Long id, long wdFreeMB, String wdCpu, float wdMem, String wdIpAddr, String wdGroupName) {
         this.id = id;
         this.wdFreeMB = wdFreeMB;
         this.wdCpu = wdCpu;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="eon.hg.fileserver.mapper.TbFileMapper">
-  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.TbFile">
+<mapper namespace="eon.hg.fileserver.mapper.FileMapper">
+  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.FileInfo">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="path" jdbcType="VARCHAR" property="path" />
@@ -46,7 +46,7 @@
     WHERE exists(select 1 from tb_profession p where p.file_id=f.id and p.app_no=#{app_no})
   </select>
 
-  <insert id="insert" parameterType="eon.hg.fileserver.model.TbFile" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="eon.hg.fileserver.model.FileInfo" useGeneratedKeys="true" keyProperty="id">
     insert into tb_file (id, name,
       path, url, size, md5, type, status, block,
       last_ver, record)
@@ -55,7 +55,7 @@
       #{last_ver}, #{record})
   </insert>
 
-  <update id="update" parameterType="eon.hg.fileserver.model.TbFile">
+  <update id="update" parameterType="eon.hg.fileserver.model.FileInfo">
     update tb_file
     set
     <if test="url != null">url = #{url},</if>

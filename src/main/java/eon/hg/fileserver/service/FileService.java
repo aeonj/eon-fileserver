@@ -1,6 +1,6 @@
 package eon.hg.fileserver.service;
 
-import eon.hg.fileserver.model.TbFile;
+import eon.hg.fileserver.model.FileInfo;
 import eon.hg.fileserver.util.callback.FileCallback;
 import eon.hg.fileserver.util.dto.FileDTO;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +36,7 @@ public interface FileService {
      * @param multipartFile 文件流
      * @return
      */
-    TbFile uploadNormalFile(FileDTO fileDTO, MultipartFile multipartFile);
+    FileInfo uploadNormalFile(FileDTO fileDTO, MultipartFile multipartFile);
 
     /**
      * 上传文件，不支持断点续传
@@ -63,7 +63,7 @@ public interface FileService {
      * @param appFileId
      * @return
      */
-    TbFile downloadNormalFile(String appNo, String appFileId);
+    FileInfo downloadNormalFile(String appNo, String appFileId);
 
     /**
      * 下载文件，待回调处理
@@ -107,5 +107,5 @@ public interface FileService {
      * @param appFileId
      * @return
      */
-    TbFile getFile(String appNo, String appFileId);
+    FileInfo getFile(String appNo, String appFileId);
 }

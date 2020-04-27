@@ -1,9 +1,9 @@
 package eon.hg.fileserver.service.impl;
 
-import eon.hg.fileserver.mapper.TbAppMapper;
-import eon.hg.fileserver.mapper.TbFileMapper;
-import eon.hg.fileserver.mapper.TbProfessionMapper;
-import eon.hg.fileserver.model.TbFile;
+import eon.hg.fileserver.mapper.AppMapper;
+import eon.hg.fileserver.mapper.FileMapper;
+import eon.hg.fileserver.mapper.ProfessionMapper;
+import eon.hg.fileserver.model.FileInfo;
 import eon.hg.fileserver.service.ManageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,15 +15,15 @@ import java.util.List;
 @Service
 public class ManageServiceImpl implements ManageService {
     @Resource
-    private TbAppMapper appMapper;
+    private AppMapper appMapper;
     @Resource
-    private TbFileMapper fileMapper;
+    private FileMapper fileMapper;
     @Resource
-    private TbProfessionMapper professionMapper;
+    private ProfessionMapper professionMapper;
 
     @Override
-    public List<TbFile> getAppFiles(String app_no) {
-        List<TbFile> files = fileMapper.selectByAppNo(app_no);
+    public List<FileInfo> getAppFiles(String app_no) {
+        List<FileInfo> files = fileMapper.selectByAppNo(app_no);
         return files;
     }
 

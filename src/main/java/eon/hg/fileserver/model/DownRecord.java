@@ -3,7 +3,7 @@ package eon.hg.fileserver.model;
 import lombok.Data;
 
 @Data
-public class TbDownRecord {
+public class DownRecord {
     private Long id;
     private Long fileId;
     private Long accessCount;//被访问次数

@@ -1,14 +1,19 @@
 package eon.hg.fileserver.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.IdUtil;
 import com.jcraft.jsch.JSchException;
-import eon.hg.fileserver.mapper.TbDownRecordMapper;
-import eon.hg.fileserver.mapper.TbWarningDataMapper;
-import eon.hg.fileserver.model.TbDownRecord;
-import eon.hg.fileserver.model.TbWarningData;
+import eon.hg.fileserver.mapper.SqlMapper;
+import eon.hg.fileserver.mapper.DownRecordMapper;
+import eon.hg.fileserver.mapper.WarningDataMapper;
+import eon.hg.fileserver.model.DownRecord;
+import eon.hg.fileserver.model.WarningData;
 import eon.hg.fileserver.service.MonitorService;
+import eon.hg.fileserver.util.SqlTools;
 import eon.hg.fileserver.util.dto.GroupDTO;
 import eon.hg.fileserver.util.dto.StorageDTO;
+import eon.hg.fileserver.util.file.FDfsHandler;
 import eon.hg.fileserver.util.ssh.JsshProxy;
 import eon.hg.fileserver.util.ssh.Machine;
 import eon.hg.fileserver.util.ssh.SshTools;
@@ -29,42 +34,62 @@ import java.util.*;
 @Service
 public class ScheduledServiceImpl {
     @Resource
-    private TbDownRecordMapper downRecordMapper;
+    private DownRecordMapper downRecordMapper;
     @Resource
-    private TbWarningDataMapper warningDataMapper;
+    private SqlMapper sqlMapper;
+    @Resource
+    private WarningDataMapper warningDataMapper;
     @Autowired
     private MonitorService monitorService;
 
     Map<String, Date> datemap = new HashMap<>();
 
-
-    @Scheduled(cron = "0/50 * * * * *")
-    public void scheduled(){
-        log.info("=====>>>>>使用cron  {}",System.currentTimeMillis());
-    }
-    @Scheduled(fixedRate = 5000)
-    public void scheduled1() {
-        log.info("=====>>>>>使用fixedRate{}", System.currentTimeMillis());
-    }
-    @Scheduled(fixedDelay = 5000)
-    public void scheduled2() {
-        log.info("=====>>>>>fixedDelay{}",System.currentTimeMillis());
-        try {
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Scheduled(cron = "0 0 0 0/1 * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     @Transactional(propagation = Propagation.REQUIRED)
-    public void updateGroupByDay() {
+    public void scheduledGroupByMinutes() {
+        log.info("group minutes data upate begin...");
+        updateGroup("");
+        log.info("group minutes data upated end");
+    }
+
+    @Scheduled(cron = "0 0 */1 * * ?")
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void scheduledGroupByHour() {
+        log.info("group hour data upate begin...");
+        updateGroup("hour");
+        log.info("group hour data upated end");
+    }
+
+    @Scheduled(cron = "0 0 1 * * ?")
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void scheduledGroupByDay() {
         log.info("group day data upate begin...");
-        List<GroupDTO> groupList =monitorService.listGroupInfo();
+        updateGroup("day");
         log.info("group day data upated end");
     }
 
+    private void updateGroup(String flag) {
+        List<GroupDTO> groupList =monitorService.listGroupInfo();
+        for (GroupDTO group : groupList) {
+            Map mapGroup = BeanUtil.beanToMap(group);
+            String group_id = IdUtil.fastSimpleUUID();
+            mapGroup.put("id",group_id);
+            sqlMapper.insert(SqlTools.getInsertSql("tb_group"+flag,mapGroup));
+            for (StorageDTO storage : group.getStorageList()) {
+                Map mapStorage = BeanUtil.beanToMap(storage);
+                mapStorage.put("id",IdUtil.fastSimpleUUID());
+                mapStorage.put("group_id",group_id);
+                mapStorage.put("curStatus", FDfsHandler.getStorageStatusCaption(storage.getStatus()));
+                mapStorage.put("groupName",group.getGroupName());
+                mapStorage.put("created",new Date());
+
+                sqlMapper.insert(SqlTools.getInsertSql("tb_storage"+flag,mapStorage));
+            }
+        }
+    }
+
     private void warning(StorageDTO storage) {
-        List<TbWarningData> warningDatas = warningDataMapper.findByIp(storage.getIpAddr());
+        List<WarningData> warningDatas = warningDataMapper.findByIp(storage.getIpAddr());
         StringBuffer stringBuffer = new StringBuffer("异常服务器：" + storage.getIpAddr() + "</br>");
         if (!warningDatas.isEmpty()) {
             float wdCup = Float.parseFloat(warningDatas.get(0).getWdCpu());
@@ -128,7 +153,7 @@ public class ScheduledServiceImpl {
         String date = df.format(d);
         for (Machine machine : SshTools.machines) {
             String cmd = "cat "+machine.getLogpath()+"/fastdfs_" + date + ".log";
-            List<String> strList = new ArrayList<String>();
+            List<String> strList;
             if(machine.isConfigType())
                 strList = SshTools.exeRemoteConsole(machine.getIp(),
                         machine.getUsername(), machine.getPassword(), cmd);
@@ -138,12 +163,12 @@ public class ScheduledServiceImpl {
                 String data[] = str.split(" ");
                 if (data[8].equals("200")) {
                     //去数据库对应的表tbdownloadfilerecord中查询有没有fileId和对应的ip的DownloadFileRecord存在；
-                    TbDownRecord downloadFileRecord = downRecordMapper.getByIpAndFile(machine.getIp(), Convert.toLong(data[6]));
+                    DownRecord downloadFileRecord = downRecordMapper.getByIpAndFile(machine.getIp(), Convert.toLong(data[6]));
                     if (downloadFileRecord != null) {
                         downloadFileRecord.setAccessCount(downloadFileRecord.getAccessCount() + 1);
                         downRecordMapper.update(downloadFileRecord);
                     } else {
-                        downloadFileRecord = new TbDownRecord();
+                        downloadFileRecord = new DownRecord();
                         downloadFileRecord.setFileId(Convert.toLong(data[6]));
                         downloadFileRecord.setSrcIp(machine.getIp());
                         downloadFileRecord.setAccessCount(1l);

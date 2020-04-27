@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import eon.hg.fileserver.config.FileServerProperties;
 import eon.hg.fileserver.enums.FileType;
 import eon.hg.fileserver.exception.ResultException;
-import eon.hg.fileserver.model.TbFile;
+import eon.hg.fileserver.model.FileInfo;
 import eon.hg.fileserver.service.FileService;
 import eon.hg.fileserver.util.body.ResultBody;
 import eon.hg.fileserver.util.dto.FileDTO;
@@ -52,7 +52,7 @@ public class FileController {
                                        @RequestParam Map<String, Object> paramMap) {
         FileDTO fileDTO = BeanUtil.mapToBean(paramMap, FileDTO.class, true);
         fileDTO.valid();
-        TbFile tbFile = fileService.uploadNormalFile(fileDTO, file);
+        FileInfo tbFile = fileService.uploadNormalFile(fileDTO, file);
         return ResultBody.success().addObject(tbFile.getUrl());
     }
 
@@ -141,7 +141,7 @@ public class FileController {
     @RequestMapping("/chunk/download")
     @ResponseBody
     public void downloadChunkFile(HttpServletResponse response, HttpServletRequest request, String appNo, String fileId){
-        TbFile tbFile = fileService.getFile(appNo,fileId);
+        FileInfo tbFile = fileService.getFile(appNo,fileId);
         BufferedInputStream bis = null;
         try {
             if (tbFile.getType().equals(FileType.LOCAL)) {
@@ -318,7 +318,7 @@ public class FileController {
 
     @RequestMapping("/url")
     public String getUrl(@RequestParam("appNo") String appNo, @RequestParam("fileId") String fileId) {
-        TbFile tbFile = fileService.getFile(appNo, fileId);
+        FileInfo tbFile = fileService.getFile(appNo, fileId);
         return tbFile.getUrl();
     }
 

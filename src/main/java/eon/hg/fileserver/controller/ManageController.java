@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import eon.hg.fileserver.config.FileServerProperties;
-import eon.hg.fileserver.model.TbFile;
+import eon.hg.fileserver.model.FileInfo;
 import eon.hg.fileserver.service.FileService;
 import eon.hg.fileserver.service.ManageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,10 +46,10 @@ public class ManageController {
 
     @RequestMapping("/upload_list")
     public String upload_list(HttpServletRequest request, String appNo) {
-        List<TbFile> fileList = manageService.getAppFiles(appNo);
+        List<FileInfo> fileList = manageService.getAppFiles(appNo);
         List<JSONObject> jsonObjects = new ArrayList<>();
         if (CollUtil.isNotEmpty(fileList)) {
-            for (TbFile e : fileList) {
+            for (FileInfo e : fileList) {
                 JSONObject jsonObject = JSONUtil.parseObj(e);
                 jsonObjects.add(jsonObject);
 

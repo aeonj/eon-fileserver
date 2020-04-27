@@ -1,6 +1,6 @@
 package eon.hg.fileserver.util.callback;
 
-import eon.hg.fileserver.model.TbFile;
+import eon.hg.fileserver.model.FileInfo;
 
 import java.io.InputStream;
 
@@ -9,5 +9,5 @@ import java.io.InputStream;
  * @author eonook
  */
 public interface FileCallback<T> {
-    T recv(TbFile tbFile, InputStream ins);
+    T recv(FileInfo tbFile, InputStream ins);
 }

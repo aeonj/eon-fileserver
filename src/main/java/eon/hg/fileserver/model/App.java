@@ -4,7 +4,7 @@ import eon.hg.fileserver.enums.FileType;
 import lombok.Data;
 
 @Data
-public class TbApp {
+public class App {
     private Long id;
 
     private String app_no;

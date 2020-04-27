@@ -1,6 +1,6 @@
 package eon.hg.fileserver.model;
 
-public class TbWarningUser {
+public class WarningUser {
     private Long id;
     private String name;
     private String email;

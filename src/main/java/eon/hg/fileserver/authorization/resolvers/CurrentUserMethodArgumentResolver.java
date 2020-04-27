@@ -2,8 +2,10 @@ package eon.hg.fileserver.authorization.resolvers;
 
 
 import eon.hg.fileserver.authorization.annotation.CurrentUser;
-import eon.hg.fileserver.model.TbUser;
+import eon.hg.fileserver.model.User;
+import eon.hg.fileserver.service.UserService;
 import eon.hg.fileserver.util.constant.FileConstant;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -19,11 +21,13 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 
 @Component
 public class CurrentUserMethodArgumentResolver implements HandlerMethodArgumentResolver {
+    @Autowired
+    private UserService userService;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         //如果参数类型是User并且有CurrentUser注解则支持
-        if (parameter.getParameterType().isAssignableFrom(TbUser.class) &&
+        if (parameter.getParameterType().isAssignableFrom(User.class) &&
                 parameter.hasParameterAnnotation(CurrentUser.class)) {
             return true;
         }
@@ -34,10 +38,11 @@ public class CurrentUserMethodArgumentResolver implements HandlerMethodArgumentR
 
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         //取出鉴权时存入的登录用户Id
-        String currentUserId = (String)webRequest.getAttribute(FileConstant.CURRENT_USER_ID, RequestAttributes.SCOPE_REQUEST);
+        Long currentUserId = (Long)webRequest.getAttribute(FileConstant.CURRENT_USER_ID, RequestAttributes.SCOPE_REQUEST);
         if (currentUserId != null) {
             //从数据库中查询并返回
-           return  new TbUser();
+            User user = userService.getUser(currentUserId);
+           return user;
         }
         throw new MissingServletRequestPartException(FileConstant.CURRENT_USER_ID);
     }

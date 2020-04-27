@@ -3,7 +3,7 @@ package eon.hg.fileserver.model;
 import lombok.Data;
 
 @Data
-public class TbProfession {
+public class Profession {
     private Long id;
 
     private String app_no;

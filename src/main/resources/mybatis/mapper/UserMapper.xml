@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="eon.hg.fileserver.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.User">
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="power" property="power" jdbcType="VARCHAR" />
+    <result column="psw" property="psw" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, name, psw, power, fast_group
+  </sql>
+
+  <select id="getAll" resultMap="BaseResultMap"  >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_user
+  </select>
+
+  <select id="getOne" parameterType="java.lang.Long" resultMap="BaseResultMap" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_user
+    WHERE id = #{id}
+  </select>
+
+  <select id="getByName" parameterType="java.lang.String" resultMap="BaseResultMap" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM tb_user
+    WHERE name = #{name}
+  </select>
+
+  <insert id="insert" parameterType="eon.hg.fileserver.model.User" useGeneratedKeys="true" keyProperty="id">
+    insert into tb_user (id, name, psw, power)
+    values (#{id}, #{name}, #{psw}, #{power})
+  </insert>
+
+  <update id="update" parameterType="eon.hg.fileserver.model.User">
+    update tb_user
+    set
+    <if test="name != null">name = #{name},</if>
+    psw = #{psw},
+    power = #{power}
+    where
+    id = #{id}
+  </update>
+
+  <update id="updatePsw" parameterType="eon.hg.fileserver.model.User">
+    update tb_user
+    set psw = #{psw}
+    where id = #{id}
+  </update>
+
+  <delete id="delete" parameterType="java.lang.Long" >
+    delete from tb_user where id =#{id}
+  </delete>
+</mapper>

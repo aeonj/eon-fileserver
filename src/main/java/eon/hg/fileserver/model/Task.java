@@ -1,6 +1,6 @@
 package eon.hg.fileserver.model;
 
-public class TbTask {
+public class Task {
     private Integer id;
 
     private String appno;

@@ -1,10 +1,10 @@
 package eon.hg.fileserver.service;
 
-import eon.hg.fileserver.model.TbFile;
+import eon.hg.fileserver.model.FileInfo;
 
 import java.util.List;
 
 public interface ManageService {
 
-    List<TbFile> getAppFiles(String app_no);
+    List<FileInfo> getAppFiles(String app_no);
 }

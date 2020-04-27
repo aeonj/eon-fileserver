@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="eon.hg.fileserver.mapper.TbAppMapper">
-  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.TbApp">
+<mapper namespace="eon.hg.fileserver.mapper.AppMapper">
+  <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.App">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="app_no" jdbcType="VARCHAR" property="app_no" />
     <result column="app_desc" jdbcType="VARCHAR" property="app_desc" />
@@ -34,12 +34,12 @@
     app_no = #{app_no}
   </select>
 
-  <insert id="insert" parameterType="eon.hg.fileserver.model.TbApp" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="eon.hg.fileserver.model.App" useGeneratedKeys="true" keyProperty="id">
     insert into tb_app (id, app_no, app_desc, file_type, fast_group)
     values (#{id}, #{app_no}, #{app_desc}, #{file_type}, #{fast_group})
   </insert>
 
-  <update id="update" parameterType="eon.hg.fileserver.model.TbApp">
+  <update id="update" parameterType="eon.hg.fileserver.model.App">
     update tb_app
     set
     <if test="app_no != null">app_no = #{app_no},</if>

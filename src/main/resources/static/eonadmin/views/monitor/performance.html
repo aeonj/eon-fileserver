@@ -1,0 +1,204 @@
+<div class="layui-fluid" id="VIEW-chart-index" lay-title="性能监控">
+    <div class="layui-row layui-col-space10">
+        <div id="group-main-index" class="layui-col-md12">
+            <script id="group-main-div" type="text/html">
+                {{# layui.each(d.data, function(index, group){ }}
+                <div class="layui-card">
+                    <div class="layui-card-header"><span><b>服务器组：</b>{{group.groupName}}</span></div>
+                    <div class="layui-card-body">
+                        <div class="layui-row">
+                            <div class="layui-col-md8">
+                                <div class="layui-tab layui-tab-brief" lay-filter="tab-chart-{{group.groupName}}">
+                                    <ul class="layui-tab-title">
+                                        <li lay-id="cpu" class="layui-this">CPU 使用率</li>
+                                        <li lay-id="mem">内存使用率</li>
+                                    </ul>
+                                    <div class="layui-tab-content eonadmin-pad0">
+                                        <div class="layui-tab-item layui-show">
+                                            <div id="chart-index-{{group.groupName}}" style="width: 100%;height:300px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-col-md4">
+                                <div class="layui-tab layui-tab-card" lay-filter="tab-info-{{group.groupName}}">
+                                    <ul class="layui-tab-title">
+                                        <li class="layui-this">基本信息</li>
+                                        <li>高级信息</li>
+                                    </ul>
+                                    <div class="layui-tab-content eonadmin-pad0">
+                                        <div class="layui-tab-item layui-show">
+                                            <div style="width: 100%;height:300px;overflow-x: hidden; overflow-y: auto;">
+                                                <!--fieldset class="layui-elem-field layui-field-title">
+                                                    <legend>192.168.10.252</legend>
+                                                    <div class="layui-field-box">
+                                                        <div class="eonadmin-cell">
+                                                            <div class="eonadmin-cell-title">
+                                                                <span class="layui-badge layui-bg-green">cpu：</span> 65%   <span class="layui-badge layui-bg-green">mem：</span> 65%   <span class="layui-badge layui-bg-green">状态：</span> <font color="red">Active</font>
+                                                            </div>
+                                                            <div class="eonadmin-cell-title">
+                                                                <span class="layui-badge layui-bg-green">ifTrunkServer：</span> true   <span class="layui-badge layui-bg-green">最后更新日期：</span> 2920-02-02 12:00:00</font>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </fieldset-->
+                                                {{# layui.each(group.storageList, function(index, storage){ }}
+                                                <fieldset class="layui-elem-field layui-field-title">
+                                                    <legend>{{storage.ipAddr}}</legend>
+                                                    <div class="layui-field-box">
+                                                        <p style="margin-top:10px;margin-left:10px;"><b>cpu : </b>{{storage.cpu}}%  <b>mem : </b>{{storage.mem}}%  <b>状态 : </b><font color={{# if(storage.curStatus=='ACTIVE'){ }}"green"{{# }else{ }}"red" {{# } }}>{{storage.curStatus}}</font> </p>
+                                                        <p style="margin-top:10px;margin-left:10px;"><b>trunk : </b>{{storage.ifTrunkServer}}  <b>最后更新日期 : </b> {{# layui.util.toDateString(storage.created) }} </p>
+                                                    </div>
+                                                </fieldset>
+                                                {{# }); }}
+                                            </div>
+                                        </div>
+                                        <div class="layui-tab-item">
+                                            <div style="width: 100%;height:300px;overflow-x: hidden; overflow-y: auto;">
+                                                {{# layui.each(group.storageList, function(index, storage){ }}
+                                                <fieldset class="layui-elem-field layui-field-title">
+                                                    <legend>{{storage.ipAddr}}</legend>
+                                                    <div class="layui-field-box layui-text">
+                                                        <ul>
+                                                            <li><b>version : </b>{{storage.version}}  <b>硬盘总容量 : </b>{{storage.totalMB}}  <b>硬盘剩余容量 : </b>{{storage.freeMB}}</li>
+                                                            <li><b>upload priority : </b>{{storage.uploadPriority}}  <b>joinTime : </b>{{# layui.util.toDateString(storage.joinTime) }} <b>upTime : </b>{{# layui.util.toDateString(storage.upTime) }} </li>
+
+                                                            <li><b>totalUploadCount : </b>{{storage.totalUploadCount}}  </li>
+                                                        </ul>
+                                                    </div>
+                                                </fieldset>
+                                                {{# }); }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{# }); }}
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['admin', 'echarts', 'element', 'laytpl', 'util'], function (admin, echarts, element, laytpl,util) {
+        var $ = layui.jquery;
+        admin.get({
+            url: '/manage/performance/init',
+            api: 'initPerformance',
+            success: function(data){
+                laytpl($("#group-main-div").html()).render(data, function(html){
+                    $("#group-main-index").html(html);
+                });
+                layui.each(data.data, function(index, item){
+                    element.on('tab(tab-info-'+item.groupName+')', function(data) {
+
+                    });
+                    element.on('tab(tab-chart-'+item.groupName+')', function(data) {
+                        console.log(JSON.stringify(data));
+                        if (data.index==1) {
+                            createChart('chart-index-'+item.groupName, item.groupName, 'mem');
+                        } else {
+                            createChart('chart-index-'+item.groupName, item.groupName, 'cpu');
+                        }
+                    });
+                    createChart('chart-index-'+item.groupName,item.groupName,'cpu');
+
+                });
+            }
+        });
+
+
+        function createChart(id,group,type) {
+            var myChart = echarts.init(document.getElementById(id), layui.echartsTheme);
+            myChart.showLoading({
+                text : "图表数据正在努力加载...",
+                effect :'whirling',//'spin' | 'bar' | 'ring' | 'whirling' | 'dynamicLine' | 'bubble'
+                textStyle : {
+                    fontSize : 20
+                }
+            });
+            admin.get({
+                url: '/manage/performance/getLine',
+                api: 'getPerformanceLine',
+                data: {groupName: group,type: type},
+                success: function(res){
+                    if (res) {
+                        var series = [],
+                            legend_datas = [];
+                        res.forEach(function(ele) {
+                            series.push({
+                                type: 'line',
+                                name: ele.name,
+                                markPoint: {
+                                    data: [{
+                                        type: 'max',
+                                        name: '最大值'
+                                    }, {
+                                        type: 'min',
+                                        name: '最小值'
+                                    }]
+                                },
+                                lineStyle: {
+                                    normal: {
+                                        width: 3,
+                                        shadowBlur: 40,
+                                        shadowOffsetY: 10
+                                    }
+                                },
+                                smooth: false,
+                                itemStyle: {normal: {areaStyle: {type: 'default'}}},
+                                data: ele.data
+                            });
+                            legend_datas.push(ele.name);
+                        });
+                        var option = {
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            toolbox : {
+                                show : true,
+                                feature : {
+                                    //mark : {show : true},
+                                    //dataView : {show : true,readOnly : false},
+                                    magicType : {
+                                        show : true,type : [ 'line', 'bar' ]
+                                    },
+                                    //restore : {show : true},
+                                    saveAsImage : {
+                                        show : true
+                                    }
+                                }
+                            },
+
+                            xAxis: {
+                                type: 'time'
+                            },
+                            yAxis: {
+                                type: 'value',
+                                axisLabel : {
+                                    formatter : '{value} %'
+                                },
+                                splitArea : {
+                                    show : true
+                                },
+                                axisPointer: { snap: true }
+                            },
+                            legend: {
+                                data: legend_datas
+                            },
+                            series: series
+                        };
+
+                        myChart.setOption(option);
+                    }
+                },
+                complete:function(){
+                    myChart.hideLoading();
+                }
+            });
+        }
+
+    });
+</script>

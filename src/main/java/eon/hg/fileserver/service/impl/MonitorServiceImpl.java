@@ -220,25 +220,25 @@ public class MonitorServiceImpl implements MonitorService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     @Override
-    public List<Line> listStorageLines(String groupName) {
+    public List<Line> listStorageLines(String groupName,String type) {
         List<Line> lines = new ArrayList<Line>();
         List<StorageDTO> storages = listStorage(groupName);
         for (StorageDTO s : storages) {
             String sql="select s.* from TB_Storage s where s.ipAddr='"+s.getIpAddr()+"' order by s.created desc limit 10";
             List<StorageDTO> results = toStorageBean(sqlMapper.selectList(sql));
-            Line line = new Line(s.getIpAddr()+"mem使用率");
-            Line line1 = new Line(s.getIpAddr()+"cpu使用率");
+            Line line = new Line(s.getIpAddr());
             for (int i = results.size() - 1; i >= 0; i--) {
                 StorageDTO ss = results.get(i);
-                line.getData()
-                        .add(new Object[]{ss.getCreated().getTime(),
-                                ss.getMem()});
-                line1.getData().add(new Object[]{ss.getCreated().getTime(),
-                        Double.parseDouble(ss.getCpu())});
+                if ("mem".equals(type)) {
+                    line.getData().add(new Object[]{ss.getCreated().getTime(),
+                                    ss.getMem()});
+                } else {
+                    line.getData().add(new Object[]{ss.getCreated().getTime(),
+                            Double.parseDouble(ss.getCpu())});
+                }
 
             }
             lines.add(line);
-            lines.add(line1);
         }
         return lines;
     }

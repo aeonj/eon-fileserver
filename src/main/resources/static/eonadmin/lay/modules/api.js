@@ -1,0 +1,10 @@
+//请求URL
+layui.define([],function(exports){
+    exports('api',{
+        login:'json/login.js',
+        getMenu:'json/menu.js',
+        initPerformance:'json/performance_init.json',
+        getPerformanceLine:'json/performance_getLine.json',
+        initCapacity:'json/capacity_init.json'
+    });
+});

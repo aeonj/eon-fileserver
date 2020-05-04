@@ -1,0 +1,91 @@
+<div class="layui-fluid" id="VIEW-chart-index" lay-title="容量监控">
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-md12" id="group-main-index">
+            <script id="group-main-div" type="text/html">
+                {{# layui.each(d.data, function(index, group){ }}
+                <div class="layui-card">
+                    <div class="layui-card-header"><span><b>服务器组：</b>{{group.groupName}}</span></div>
+                    <div class="layui-card-body">
+                        <div class="layui-row">
+                            {{# layui.each(group.storageList, function(index, storage){ }}
+                            <div class="layui-col-md4">
+                                <div id="chart-index-{{group.index}}-{{storage.index}}"
+                                     style="width: 100%;height:400px;"></div>
+                            </div>
+                            {{# }); }}
+                        </div>
+                    </div>
+                </div>
+                {{# }); }}
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['admin', 'echarts', 'element', 'laytpl', 'util'], function (admin, echarts, element, laytpl, util) {
+        var $ = layui.jquery;
+        admin.get({
+            url: '/manage/capacity/init',
+            api: 'initCapacity',
+            success: function (data) {
+                laytpl($("#group-main-div").html()).render(data, function (html) {
+                    $("#group-main-index").html(html);
+                });
+                layui.each(data.data, function (index, group) {
+                    layui.each(group.storageList, function (index, storage) {
+                        var freeMB = storage.freeMB;
+                        var totalMB = storage.totalMB;
+                        var name = 'IP:' + storage.ipAddr + ' 容量:' + (storage.totalMB / 1024).toFixed(2) + 'G';
+                        var ser_data = {
+                            name: name, data: [{
+                                name: '已使用:' + ((totalMB - freeMB) / 1024).toFixed(2) + "G",
+                                value: 1 - freeMB / totalMB
+                            }, {
+                                name: '未使用:' + ((freeMB) / 1024).toFixed(2) + "G",
+                                value: freeMB / totalMB
+                            }]
+                        };
+                        createChart('chart-index-' + group.index + '-' + storage.index, group.groupName, ser_data);
+                    });
+                });
+            }
+        });
+
+
+        function createChart(id, group, ele) {
+            var myChart = echarts.init(document.getElementById(id), layui.echartsTheme);
+
+            var series = [{
+                type: 'pie',
+                name: ele.name,
+                radius: '55%',
+                itemStyle: {
+                    normal: {
+                        shadowBlur: 200,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                },
+                data: ele.data
+            }];
+            var option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b} : {d}%"
+                },
+                title: {
+                    text: ele.name,
+                    textStyle: {
+                        fontSize: 18
+                    }
+                },
+                series: series
+            };
+
+            myChart.setOption(option);
+            myChart.on('click', function (params) {
+                alert("饼图点击事件");
+            });
+        }
+
+    });
+</script>

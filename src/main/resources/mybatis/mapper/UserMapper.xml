@@ -9,7 +9,7 @@
   </resultMap>
 
   <sql id="Base_Column_List">
-    id, name, psw, power, fast_group
+    id, name, psw, power
   </sql>
 
   <select id="getAll" resultMap="BaseResultMap"  >

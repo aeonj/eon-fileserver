@@ -44,7 +44,7 @@ public class ScheduledServiceImpl {
 
     Map<String, Date> datemap = new HashMap<>();
 
-    @Scheduled(cron = "0 */1 * * * ?")
+//    @Scheduled(cron = "0 */1 * * * ?")
     @Transactional(propagation = Propagation.REQUIRED)
     public void scheduledGroupByMinutes() {
         log.info("group minutes data upate begin...");

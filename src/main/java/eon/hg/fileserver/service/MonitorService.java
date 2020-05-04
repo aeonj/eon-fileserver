@@ -19,7 +19,7 @@ public interface MonitorService {
 
     Line getListStoragesInfo(String ip, String startTime, String endTime);
 
-    List<Line> listStorageLines(String groupName);
+    List<Line> listStorageLines(String groupName, String type);
 
     StorageDTO getStorageByIp(String ip);
 

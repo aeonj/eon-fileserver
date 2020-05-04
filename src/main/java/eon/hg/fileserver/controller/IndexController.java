@@ -7,6 +7,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class IndexController {
 
     @RequestMapping("/")
+    public String list() {
+        return "toList";
+    }
+
+    @RequestMapping("/login")
+    public String login() {
+        return "toLogin";
+    }
+
+    @RequestMapping("/index")
     public String index() {
         return "toIndex";
     }

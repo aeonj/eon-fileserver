@@ -4,7 +4,6 @@ package eon.hg.fileserver.authorization.interceptor;
 import eon.hg.fileserver.authorization.annotation.Authorization;
 import eon.hg.fileserver.authorization.manager.TokenManager;
 import eon.hg.fileserver.authorization.model.TokenModel;
-import eon.hg.fileserver.exception.AuthorizationException;
 import eon.hg.fileserver.util.constant.FileConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +46,8 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
         if (method.getAnnotation(Authorization.class) != null) {
             response.setHeader("Access-Control-Allow-Origin","*");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            throw new AuthorizationException("身份验证失败!");
-//            return false;
+            //throw new AuthorizationException("身份验证失败!");
+            return false;
         }
         return true;
     }

@@ -24,7 +24,7 @@ layui.define(function(exports) {
     //网站名称
     name: '分布式系统监控后台',
     //默认视图文件名
-    entry: '/index',
+    entry: '/monitor/performance',
     //视图文件后缀名
     engine: '.html',
     eventName: 'eonadmin-event',
@@ -45,7 +45,7 @@ layui.define(function(exports) {
     //登录页面，当未登录或登录失效时进入
     loginPage: '/user/login',
     //登录 token 名称，request 请求的时候会带上此参数到 header
-    tokenName: 'token',
+    tokenName: 'authorization',
     //是否要强制检查登录状态， 使用tokenName进行登录验证，不通过的话会返回 loginPage 页面
     loginCheck: true,
     //根据服务器返回的 HTTP 状态码检查登录过期，设置为false不通过http返回码检查
@@ -62,7 +62,7 @@ layui.define(function(exports) {
       },
       msgName: 'msg', //状态信息的字段名称
       dataName: 'data', //数据详情的字段名称
-      countName: 'count' //数据条数的字段名称，用于 table
+      countName: 'total' //数据条数的字段名称，用于 table
     },
     //全局 table 配置
     //参数请参照 https://www.layui.com/doc/modules/table.html
@@ -77,7 +77,7 @@ layui.define(function(exports) {
       //用于对分页请求的参数：page、limit重新设定名称
       request: {
         pageName: 'page', //页码的参数名称，默认：page
-        limitName: 'size' //每页数据量的参数名，默认：limit
+        limitName: 'limit' //每页数据量的参数名，默认：limit
       }
     },
     //第三方扩展

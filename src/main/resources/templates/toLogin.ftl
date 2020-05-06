@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>分布式监控管理后台登录</title>
-    <link rel="stylesheet" href="/webjars/layui/2.5.6/css/layui.css" media="all"/>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all"/>
     <link rel="stylesheet" href="/css/login.css" media="all"/>
     <style>
         /* 覆盖原框架样式 */
@@ -99,7 +99,7 @@
 <!-- Jquery Js -->
 <script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
 <!-- Layui Js -->
-<script type="text/javascript" src="/webjars/layui/2.5.6/layui.js"></script>
+<script type="text/javascript" src="/layui/layui.js"></script>
 <!-- Jqarticle Js -->
 <script type="text/javascript" src="/js/jparticle.min.js"></script>
 <!-- zwVerificationCode Js-->

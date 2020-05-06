@@ -1,4 +1,4 @@
-<div class="layui-fluid" id="VIEW-chart-index" lay-title="性能监控">
+<div class="layui-fluid" lay-title="性能监控">
     <div class="layui-row layui-col-space10">
         <div id="group-main-index" class="layui-col-md12">
             <script id="group-main-div" type="text/html">
@@ -21,7 +21,7 @@
                                 </div>
                             </div>
                             <div class="layui-col-md4">
-                                <div class="layui-tab layui-tab-card" lay-filter="tab-info-{{group.groupName}}">
+                                <div class="layui-tab layui-tab-card">
                                     <ul class="layui-tab-title">
                                         <li class="layui-this">基本信息</li>
                                         <li>高级信息</li>
@@ -92,9 +92,6 @@
                     $("#group-main-index").html(html);
                 });
                 layui.each(data.data, function(index, item){
-                    element.on('tab(tab-info-'+item.groupName+')', function(data) {
-
-                    });
                     element.on('tab(tab-chart-'+item.groupName+')', function(data) {
                         console.log(JSON.stringify(data));
                         if (data.index==1) {

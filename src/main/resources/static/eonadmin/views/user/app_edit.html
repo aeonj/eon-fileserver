@@ -1,0 +1,84 @@
+<div class="layui-fluid" lay-title="应用设置">
+    <form class="layui-form eonadmin-pad-t20" action="" lay-filter="form-group-app">
+        <div class="layui-form-item layui-hide">
+            <label class="layui-form-label">id</label>
+            <div class="layui-input-block">
+                <input type="text" name="id" lay-verify="" placeholder="" autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">应用编号</label>
+            <div class="layui-input-block">
+                <input type="text" name="app_no" lay-verify="required" placeholder="" autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">应用授权码</label>
+            <div class="layui-input-block">
+                <input type="text" name="app_psw" placeholder="" autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">应用描述</label>
+            <div class="layui-input-block">
+                <input type="text" name="app_desc" lay-verify="" placeholder="" autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">存储类型</label>
+            <div class="layui-input-block">
+                <select name="file_type" lay-filter="win-select-ipaddr" lay-verify="required">
+                        <option value="LOCAL">LOCAL</option>
+                        <option value="FASTDFS" selected="">FASTDFS</option>
+                        <option value="FTP">FTP</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">FastDFS分组</label>
+            <div class="layui-input-block">
+                <select name="fast_group" lay-filter="win-select-ipaddr" lay-verify="">
+                    <option value="" selected="">全部</option>
+                    <option value="group1">group1</option>
+                    <option value="group2">group2</option>
+                    <option value="group3">group3</option>
+                    <option value="group4">group4</option>
+                    <option value="group5">group5</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item layui-hide">
+            <input type="button" lay-submit lay-filter="LAY-app-front-submit" id="LAY-app-front-submit"
+                   value="确认">
+        </div>
+    </form>
+</div>
+<script>
+    layui.use(['admin', 'form'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , layer = layui.layer
+            , laydate = layui.laydate
+            , form = layui.form;
+
+        form.render(null, 'form-group-app');
+
+        /* 自定义验证规则 */
+        form.verify({
+            title: function (value) {
+                if (value.length < 5) {
+                    return '标题至少得5个字符啊';
+                }
+            }
+            , pass: [/(.+){6,12}$/, '密码必须6到12位']
+            , content: function (value) {
+                layedit.sync(editIndex);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,168 @@
+<div class="layui-fluid" id="VIEW-app-index" lay-title="应用管理">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body eonadmin-table-full">
+                    <div class="layui-btn-container eonadmin-pad-t10 eonadmin-pad-l10">
+                        <div class="layui-btn layui-btn-sm table-action" data-type="add">添加</div>
+                        <div class="layui-btn layui-btn-sm layui-btn-primary table-action" data-type="batchdel">
+                            批量删除
+                        </div>
+                    </div>
+                    <table id="list-table-app" lay-filter="list-table-app"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/html" id="table-app-opera">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    </script>
+</div>
+
+<script>
+    layui.use(['admin', 'table', 'form', 'jquery'], function (admin, table, form, $) {
+        var view = $('#VIEW-app-index');
+
+        var tableFilter = 'list-table-app';
+        form.render();
+        table.render({
+            elem: '[lay-filter="' + tableFilter + '"]',
+            url: '/manage/app/list',
+            height: 'full-165',
+            cols: [[
+                {type: 'checkbox', fixed: 'left'},
+                {title: 'ID', field: 'id', width: 50},
+                {title: '应用编码', field: 'app_no', minWidth: 100},
+                {title: '应用授权码', field: 'app_psw', minWidth: 120},
+                {title: '应用描述', field: 'app_desc', minWidth: 260},
+                {title: '存储类型', field: 'file_type', minWidth: 80},
+                {title: 'FastDFS分组', field: 'fast_group', minWidth: 80},
+                {title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#table-app-opera'}
+            ]]
+        });
+
+        //事件
+        var active = {
+            batchdel: function () {
+                var checkStatus = table.checkStatus('list-table-app')
+                    , checkData = checkStatus.data; //得到选中的数据
+                console.log(JSON.stringify(checkData));
+                if (checkData.length === 0) {
+                    return layer.msg('请选择数据');
+                }
+                layer.confirm('确定删除所选行吗？', function (index) {
+
+                    //执行 Ajax 后重载
+                    admin.post({
+                        url: '/manage/app/batchdel',
+                        data: JSON.stringify(checkData),
+                        contentType: 'application/json',
+                        success: function (res) {
+                            if (res.code == 0) {
+                                table.reload('list-table-app');
+                                layer.close(index); //关闭弹层
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                });
+            }
+            , add: function () {
+                admin.popup({
+                    title: '添加应用',
+                    url: '/user/app_edit',
+                    maxmin: true,
+                    area: ['500px', '450px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var submitID = 'LAY-app-front-submit',
+                            submit = layero.find('#' + submitID);
+                        //监听提交
+                        layui.form.on('submit(' + submitID + ')', function (data) {
+                            var field = data.field; //获取提交的字段
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            admin.post({
+                                url: '/manage/app/insert',
+                                data: field,
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        table.reload('list-table-app'); //数据刷新
+                                        layer.close(index); //关闭弹层
+                                    } else {
+                                        layer.msg(res.msg);
+                                    }
+                                }
+                            });
+
+                        });
+                        submit.trigger('click');
+                    }
+                });
+            }
+        };
+        view.find('.table-action').click(function () {
+            var type = $(this).attr('data-type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //监听工具条
+        table.on('tool(' + tableFilter + ')', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个应用么', function (index) {
+                    admin.post({
+                        url: '/manage/app/delete',
+                        data: data,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                obj.del();
+                                layer.close(index); //关闭弹层
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
+                });
+            } else if (obj.event === 'edit') {
+                var tr = $(obj.tr);
+
+                admin.popup({
+                    title: '修改应用',
+                    url: '/user/app_edit',
+                    maxmin: true,
+                    area: ['500px', '450px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var submitID = 'LAY-app-front-submit',
+                            submit = layero.find('#' + submitID);
+                        //监听提交
+                        layui.form.on('submit(' + submitID + ')', function (data) {
+                            var field = data.field; //获取提交的字段
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            admin.post({
+                                url: '/manage/app/update',
+                                data: field,
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        table.reload('list-table-app'); //数据刷新
+                                        layer.close(index); //关闭弹层
+                                    } else {
+                                        layer.msg(res.msg);
+                                    }
+                                }
+                            });
+
+                        });
+                        submit.trigger('click');
+                    },
+                    success: function (layero, index) {
+                        layui.form.val("form-group-app", data);
+                    }
+                });
+            }
+        });
+
+    });
+</script>

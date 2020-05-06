@@ -21,6 +21,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class ExceptionAdvice {
     public static Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
 
+    @ResponseStatus(HttpStatus.OK)
+    @ExceptionHandler(ResultException.class)
+    public ResultBody resultException(ResultException exception) {
+        return exception.getBody();
+    }
+
     /**
      * 说明：400 - Bad Request
      */
@@ -35,7 +41,7 @@ public class ExceptionAdvice {
     /**
      * 说明：401 身份验证错误
      */
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(AuthorizationException.class)
     public ResultBody authorizationException(Exception e){
         logger.error("身份验证异常", "user authority error");

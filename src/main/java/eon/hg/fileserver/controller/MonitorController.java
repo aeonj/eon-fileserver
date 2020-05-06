@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("/manage")
@@ -33,9 +33,21 @@ public class MonitorController {
         return ResultBody.success().addObject(monitorService.listGroupInfo());
     }
 
-    @RequestMapping("/capactity/init")
+    @RequestMapping("/capacity/init")
     public ResultBody initCapactity() {
         return ResultBody.success().addObject(monitorService.listGroupInfo());
+    }
+
+    @RequestMapping("/netTraffic/init")
+    public ResultBody initNetTraffic() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Calendar calendar = Calendar.getInstance();
+        Map map = new HashMap<>();
+        map.put("end", sdf.format(calendar.getTime()));
+        calendar.add(Calendar.HOUR, -1);
+        map.put("start", sdf.format(calendar.getTime()));
+        map.put("groupInfo",monitorService.listGroupInfo());
+        return ResultBody.success().addObject(map);
     }
 
 

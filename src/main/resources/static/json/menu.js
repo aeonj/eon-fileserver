@@ -2,10 +2,6 @@
     "code": 0,
     "msg": "ok",
     "data": [{
-    "title":"首页",
-    "icon": "layui-icon-home",
-    "href": "/"
-},{
     "title":"系统监控",
     "icon": "layui-icon-fund",
     "childs":[{
@@ -55,18 +51,18 @@
     "title":"权限管理",
     "icon": "layui-icon-team",
     "childs":[{
-        "title": "用户列表",
-        "href":"/user/network"
+        "title": "应用授权",
+        "href":"/user/app"
     }]
 },{
     "title":"测试模块",
     "icon": "layui-icon-cloud-upload",
     "childs":[{
         "title": "文件列表",
-        "href":"/file/network"
+        "href":"/file/list"
     },{
         "title": "文件上传",
-        "href":"/file/network"
+        "href":"/file/upload"
     }]
 }]
 }

@@ -201,7 +201,7 @@ public class MonitorServiceImpl implements MonitorService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String str = "from StorageHour as s where s.ipAddr='" + ip
+        String str = "from TB_StorageHour as s where s.ipAddr='" + ip
                 + "' and s.created between '" + start + "' and '" + end + "'"
                 + " order by s.created desc";
         System.out.println(str);
@@ -248,7 +248,7 @@ public class MonitorServiceImpl implements MonitorService {
     @Override
     public StorageDTO getStorageByIp(String ip) {
         System.out.println(ip);
-        String str = "from StorageHour as s where s.ipAddr='" + ip
+        String str = "from Tb_StorageHour as s where s.ipAddr='" + ip
                 + "' order by s.created desc limit 1,1";
         List<StorageDTO> dtoList = toStorageBean(sqlMapper.selectList(str));
         return dtoList.get(0);

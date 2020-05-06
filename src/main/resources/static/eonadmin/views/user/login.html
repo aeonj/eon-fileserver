@@ -341,7 +341,7 @@ layui.use(['admin','helper','util','qrcode','form'],function(admin,helper,util,q
             url:'/manage/login',
             data:data.field,
             success:function(res){
-                admin.login(res.data.token,{ user:res.data },data.field.autoLogin != 'on');
+                admin.login(res.data.userId+'_'+res.data.token,{ user:res.data },data.field.autoLogin != 'on');
                 admin.navigate('/');
             },
             complete:function(){

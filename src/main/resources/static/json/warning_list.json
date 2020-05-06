@@ -1,0 +1,13 @@
+{
+  "code": 0,
+  "msg": "",
+  "count": "100",
+  "data": [{
+    "id":1,
+    "wdCpu":20,
+    "wdFreeMB":20,
+    "wdGroupName":"group1",
+    "wdIpAddr":"192.168.10.252",
+    "wdMem":20
+  }]
+}

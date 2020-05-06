@@ -5,7 +5,7 @@
 window.ZWUP = window.ZWUP || {};
 ZWUP.basePath =getBaseUrl();
 ZWUP.flashPath = ZWUP.basePath + "script/Uploader.swf";
-ZWUP.configUrl = ZWUP.basePath + "/file/manage/config";
+ZWUP.configUrl = ZWUP.basePath + "/manage/test/config";
 
 ZWUP.fileServerUrl = ZWUP.fileServerUrl || null;
 ZWUP.isServerConfigLoaded = false;

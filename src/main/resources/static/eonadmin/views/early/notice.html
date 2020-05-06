@@ -1,90 +1,195 @@
-<div class="layui-fluid eonadmin-pad0 eonadmin-mar0" id="VIEW-detail-plan" lay-title="工作计划">
-  <div class="layui-card" style="margin-bottom: 0;">
-    <div class="layui-card-body eonadmin-pad30">
-      <h2 class="eonadmin-pad-b10">日历平铺展示内容</h2>
-      <p class="eonadmin-c-gray">可以展示一些工作计划、日程等内容。</p>
-    </div>
-  </div>
-  <div class="layui-row layui-col-space10 eonadmin-pad20">
-    <div class="layui-col-md12 layui-bg-white">
-      <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief" style="margin:0;">
-        <ul class="layui-tab-title">
-          <li class="layui-this">普通展示</li>
-          <li>自定义日期内容</li>
-        </ul>
-        <div class="layui-tab-content">
-          <div class="layui-tab-item layui-show">
-            <div class="normal-full-date eonadmin-laydate-full"></div>
+<div class="layui-fluid" id="VIEW-notice-index" lay-title="通知管理">
+  <div class="layui-row">
+    <div class="layui-col-md12">
+      <div class="layui-card">
+        <div class="layui-card-body eonadmin-table-full">
+          <form class="layui-form eonadmin-pad-t10" action="" lay-filter="form-group">
+            <div class="layui-form-item">
+
+              <div class="layui-inline">
+                <label class="layui-form-label">用户名：</label>
+                <div class="layui-input-block">
+                  <input type="text" name="ipAddr" autocomplete="off" class="layui-input laytext">
+                </div>
+              </div>
+
+              <div class="layui-inline">
+                <div class="layui-input-block">
+                  <button class="layui-btn layui-btn-sm" lay-submit="" lay-filter="form-group-submit">
+                    检索
+                  </button>
+                  <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="layui-btn-container eonadmin-pad-l10">
+            <div class="layui-btn layui-btn-sm table-action" data-type="add">添加</div>
+            <div class="layui-btn layui-btn-sm layui-btn-primary table-action" data-type="batchdel">
+              批量删除
+            </div>
           </div>
-          <div class="layui-tab-item">
-            <div class="custom-full-date eonadmin-laydate-full"></div>
-          </div>
+          <table id="list-table-notice" lay-filter="list-table-notice"></table>
         </div>
       </div>
     </div>
   </div>
+  <script type="text/html" id="table-notice-opera">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+  </script>
 </div>
-<style>
-  #VIEW-detail-plan .custom-full-date td.layui-this .customdate-content {
-    color: #5a8bff;
-  }
-
-  #VIEW-detail-plan .customdate-content {
-    line-height: 18px;
-    font-size: 12px;
-    color: #f25657;
-  }
-
-  #VIEW-detail-plan .customdate-content h2 {
-    font-size: 24px;
-    margin-bottom: 8px;
-  }
-</style>
 <script>
-  layui.use(['laydate', 'jquery'], function (laydate) {
-    var $ = layui.jquery;
-    var viewCls = '#VIEW-detail-plan';
+    layui.use(['admin', 'table', 'form', 'jquery'], function (admin, table, form, $) {
+        var view = $('#VIEW-notice-index');
 
-    laydate.render({
-      elem: viewCls + ' .normal-full-date',
-      position: 'static',
-      showBottom: false,
-      calendar: true
+        var tableFilter = 'list-table-notice';
+        form.render();
+        table.render({
+            elem: '[lay-filter="' + tableFilter + '"]',
+            api: 'getNoticeList',
+            url: '/manage/notice/list',
+            height: 'full-225',
+            cols: [[
+                {type: 'checkbox', fixed: 'left'},
+                {title: '用户名', field: 'name', minWidth: 100},
+                {title: '手机号', field: 'phone', minWidth: 160},
+                {
+                    title: '邮箱',
+                    field: 'email',
+                    minWidth: 220
+                },
+                {title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#table-notice-opera'}
+            ]]
+        });
+
+        //事件
+        var active = {
+            batchdel: function () {
+                var checkStatus = table.checkStatus('LAY-user-manage')
+                    , checkData = checkStatus.data; //得到选中的数据
+
+                if (checkData.length === 0) {
+                    return layer.msg('请选择数据');
+                }
+
+                layer.prompt({
+                    formType: 1
+                    , title: '敏感操作，请验证口令'
+                }, function (value, index) {
+                    layer.close(index);
+
+                    layer.confirm('确定删除吗？', function (index) {
+
+                        //执行 Ajax 后重载
+                        /*
+                        admin.req({
+                          url: 'xxx'
+                          //,……
+                        });
+                        */
+                        table.reload('LAY-user-manage');
+                        layer.msg('已删除');
+                    });
+                });
+            }
+            , add: function () {
+                admin.popup({
+                    title: '添加通知用户',
+                    url: '/early/notice_edit',
+                    maxmin: true,
+                    area: ['500px', '350px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var submitID = 'LAY-notice-front-submit',
+                            submit = layero.find('#' + submitID);
+                        //监听提交
+                        layui.form.on('submit(' + submitID + ')', function (data) {
+                            var field = data.field; //获取提交的字段
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            admin.post({
+                                url: '/manage/notice/data/insert',
+                                api: 'insertnoticeData',
+                                data: field,
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        table.reload('list-table-notice'); //数据刷新
+                                        layer.close(index); //关闭弹层
+                                    } else {
+                                        layer.msg(res.msg);
+                                    }
+                                }
+                            });
+
+                        });
+                        submit.trigger('click');
+                    }
+                });
+            }
+        };
+        view.find('.table-action').click(function () {
+            var type = $(this).attr('data-type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //监听工具条
+        table.on('tool(' + tableFilter + ')', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个用户么', function (index) {
+                    obj.del();
+                    layer.close(index);
+                });
+            } else if (obj.event === 'edit') {
+                var tr = $(obj.tr);
+
+                admin.popup({
+                    title: '修改通知用户',
+                    url: '/early/notice_edit',
+                    maxmin: true,
+                    area: ['500px', '350px'],
+                    btn: ['确定', '取消'],
+                    yes: function (index, layero) {
+                        var submitID = 'LAY-notice-front-submit',
+                            submit = layero.find('#' + submitID);
+                        //监听提交
+                        layui.form.on('submit(' + submitID + ')', function (data) {
+                            var field = data.field; //获取提交的字段
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            admin.post({
+                                url: '/manage/notice/data/update',
+                                api: 'insertnoticeData',
+                                data: field,
+                                success: function (res) {
+                                    if (res.code == 0) {
+                                        table.reload('list-table-notice'); //数据刷新
+                                        layer.close(index); //关闭弹层
+                                    } else {
+                                        layer.msg(res.msg);
+                                    }
+                                }
+                            });
+
+                        });
+                        submit.trigger('click');
+                    },
+                    success: function(layero, index){
+                        layui.form.val("form-group-noticedata",data);
+                    }
+                });
+            }
+        });
+
+        /* 监听提交 */
+        form.on('submit(form-group-submit)', function (data) {
+            layer.alert(JSON.stringify(data.field), {
+                title: '最终的提交信息'
+            });
+            //执行重载
+            table.reload('list-table-notice', {
+                where: field
+            });
+            return false;
+        });
     });
-
-    function customContent() {
-      var markList = {
-        '9': [
-          '发布推广信息',
-          '上传最新文章',
-          '审核商品'
-        ],
-        '21': [
-          '发工资'
-        ],
-        '3': [
-          '该干嘛干嘛'
-        ]
-      };
-
-      $(this.elem).find('[lay-ymd]').each(function () {
-        var ymd = $(this).attr('lay-ymd');
-        var day = ymd.split('-')[2];
-        var mark = markList[day];
-        if (mark) {
-          var p = $('<div class="customdate-content"><h2>' + day + '</h2>' + mark.join('<br/>') + '</div>');
-          $(this).html(p);
-        }
-      })
-    }
-
-    laydate.render({
-      elem: viewCls + ' .custom-full-date',
-      position: 'static',
-      showBottom: false,
-      ready: customContent,
-      change: customContent
-    });
-
-  })
 </script>

@@ -38,10 +38,10 @@
 
 </style>
 <body style="background: #f0f0f0">
-    <div id="contentBox" style="margin: 20px auto;width: 80%;">
-                    <div >
-                        <button id="go_login">去上传页面</button>
-                    </div>
+    <div id="contentBox">
+                    <#--<div >-->
+                        <#--<button id="go_login">去上传页面</button>-->
+                    <#--</div>-->
 
                 <div>
 
@@ -101,6 +101,6 @@
     })
 
     $('#go_login').click(function () {
-        window.open('/file/manage/to_upload');
+        window.open('/manage/test/to_upload');
     })
 </script>

@@ -1,0 +1,66 @@
+<div class="layui-fluid" lay-title="预警设置">
+    <form class="layui-form eonadmin-pad-t20" action="" lay-filter="form-group-warningdata">
+        <div class="layui-form-item">
+            <label class="layui-form-label">服务器IP</label>
+            <div class="layui-input-block">
+                <select name="wdIpAddr" lay-filter="win-select-ipaddr" lay-verify="required">
+                    <option value="">请选择服务器IP</option>
+                    <optgroup label="group1">
+                        <option value="192.168.10.252">192.168.10.252</option>
+                        <option value="192.168.10.253" selected="">192.168.10.253</option>
+                        <option value="192.168.10.254">192.168.10.254</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">CPU预警值</label>
+            <div class="layui-input-block">
+                <input type="text" name="wdCpu" lay-verify="required|number" placeholder="请设定最大值" autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">内存预警值</label>
+            <div class="layui-input-block">
+                <input type="text" name="wdMem" lay-verify="required|number" placeholder="请设定最大值" autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">容量预警值</label>
+            <div class="layui-input-block">
+                <input type="text" name="wdFreeMB" lay-verify="required|number" placeholder="请设定最小值" autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-hide">
+            <input type="button" lay-submit lay-filter="LAY-warning-front-submit" id="LAY-warning-front-submit" value="确认">
+        </div>
+    </form>
+</div>
+<script>
+    layui.use(['admin', 'form'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , layer = layui.layer
+            , laydate = layui.laydate
+            , form = layui.form;
+
+        form.render(null, 'form-group-warningdata');
+
+        /* 自定义验证规则 */
+        form.verify({
+            title: function (value) {
+                if (value.length < 5) {
+                    return '标题至少得5个字符啊';
+                }
+            }
+            , pass: [/(.+){6,12}$/, '密码必须6到12位']
+            , content: function (value) {
+                layedit.sync(editIndex);
+            }
+        });
+    });
+</script>

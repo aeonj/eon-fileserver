@@ -1,0 +1,86 @@
+{
+  "code": 0,
+  "msg": "ok",
+  "data": {
+    "end": "2020-05-04 15:00",
+    "start": "2020-05-02 12:30",
+    "groupInfo": [
+      {
+        "groupName": "group1",
+        "index": 1,
+        "storageList": [
+          {
+            "index": 1,
+            "ipAddr": "192.168.10.252",
+            "cpu": 50,
+            "mem": 70,
+            "curStatus": "ACTIVE",
+            "created": 1588214647541,
+            "ifTrunkServer": true,
+            "version": "3.9.2",
+            "totalMB": 1000000,
+            "freeMB": 53000,
+            "uploadPriority": 293929,
+            "upTime": 1588214647541,
+            "joinTime": 1588214647541,
+            "totalUploadCount": 600
+          },
+          {
+            "index": 2,
+            "ipAddr": "192.168.10.253",
+            "cpu": 60,
+            "mem": 90,
+            "curStatus": "ACTIVE",
+            "created": 1588214647541,
+            "ifTrunkServer": true,
+            "version": "3.9.2",
+            "totalMB": 1000000,
+            "freeMB": 350000,
+            "uploadPriority": 293929,
+            "upTime": 1588214647541,
+            "joinTime": 1588214647541,
+            "totalUploadCount": 600
+          },
+          {
+            "index": 3,
+            "ipAddr": "192.168.10.254",
+            "cpu": 50,
+            "mem": 70,
+            "curStatus": "ACTIVE",
+            "created": 1588214647541,
+            "ifTrunkServer": true,
+            "version": "3.9.2",
+            "totalMB": 1000000,
+            "freeMB": 53000,
+            "uploadPriority": 293929,
+            "upTime": 1588214647541,
+            "joinTime": 1588214647541,
+            "totalUploadCount": 600
+          }
+        ]
+      },
+      {
+        "groupName": "group2",
+        "index": 2,
+        "storageList": [
+          {
+            "index": 2,
+            "ipAddr": "192.168.10.255",
+            "cpu": 50,
+            "mem": 70,
+            "curStatus": "ACTIVE",
+            "created": 1588214647541,
+            "ifTrunkServer": true,
+            "version": "3.9.2",
+            "totalMB": 500000,
+            "freeMB": 60000,
+            "uploadPriority": 293929,
+            "upTime": 1588214647541,
+            "joinTime": 1588214647541,
+            "totalUploadCount": 600
+          }
+        ]
+      }
+    ]
+  }
+}

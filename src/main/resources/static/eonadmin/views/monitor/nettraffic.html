@@ -1,79 +1,160 @@
-<div class="layui-fluid" id="VIEW-chart-index" lay-title="性能监控">
-    <div class="layui-row layui-col-space10">
-        <div class="layui-col-md12">
-            <div class="layui-card">
-                <div class="layui-card-header"><span><b>服务器组：</b>group1</span></div>
-                <div class="layui-card-body">
-                    <div class="layui-row">
-                        <div class="layui-col-md8">
-                            <div class="layui-tab layui-tab-brief" lay-filter="tab-chart-group1">
-                                <ul class="layui-tab-title">
-                                    <li lay-id="cpu" class="layui-this">CPU 使用率</li>
-                                    <li lay-id="mem">内存使用率</li>
-                                </ul>
-                                <div class="layui-tab-content eonadmin-pad0">
-                                    <div class="layui-tab-item layui-show">
-                                        <div id="chart-index-group1" style="width: 100%;height:300px;"></div>
-                                    </div>
-                                </div>
-                            </div>
+<div class="layui-fluid layui-form" lay-title="网络监控">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" action="" lay-filter="form-group">
+                <div class="layui-form-item">
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">开始时间：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="beginDate" id="beginDate" autocomplete="off"
+                                   class="layui-input laydate" placeholder="年-月-日">
                         </div>
-                        <div class="layui-col-md4">
-                            <div class="layui-tab layui-tab-card" lay-filter="tab-info-group1">
-                                <ul class="layui-tab-title">
-                                    <li class="layui-this">基本信息</li>
-                                    <li>高级信息</li>
-                                </ul>
-                                <div class="layui-tab-content eonadmin-pad0">
-                                    <div class="layui-tab-item layui-show">
-                                        <div style="width: 100%;height:300px;overflow-x: hidden; overflow-y: auto;">
-                                            <fieldset class="layui-elem-field layui-field-title">
-                                                <legend>192.168.10.252</legend>
-                                            </fieldset>
-                                            <div class="eonadmin-cell">
-                                                <div class="eonadmin-cell-title">
-                                                    <span class="layui-badge layui-bg-green">cpu：</span> 65%   <span class="layui-badge layui-bg-green">mem：</span> 65%   <span class="layui-badge layui-bg-green">状态：</span> <font color="red">Active</font>
-                                                </div>
-                                                <div class="eonadmin-cell-title">
-                                                    <span class="layui-badge layui-bg-green">ifTrunkServer：</span> true   <span class="layui-badge layui-bg-green">最后更新日期：</span> 2920-02-02 12:00:00</font>
-                                                </div>
-                                            </div>
-                                            <fieldset class="layui-elem-field layui-field-title">
-                                                <legend>192.168.10.253</legend>
-                                            </fieldset>
-                                            <p style="margin-top:10px;margin-left:10px;"><b>cpu : </b>${storage.cpu}%  <b>mem : </b>${storage.mem}%  <b>状态 : </b><font color="${storage.curStatus=='ACTIVE'?"green":"red"}">${storage.curStatus}</font> </p>
-                                            <p style="margin-top:10px;margin-left:10px;"><b>ifTrunkServer : </b>${storage.ifTrunkServer}  <b>最后更新日期 : </b>  <fmt:formatDate value="${storage.created}" pattern="yyyy-MM-dd HH:mm:ss" /></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">结束时间：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="endDate" id="endDate" autocomplete="off" class="layui-input laydate"
+                                   placeholder="年-月-日">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <div class="layui-input-block">
+                            <button class="layui-btn layui-btn-sm" lay-submit="" lay-filter="form-group-submit">检索</button>
+                            <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
                         </div>
                     </div>
                 </div>
+            </form>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-md12" id="group-main-index">
+                <script id="group-main-div" type="text/html">
+                    {{# layui.each(d.data.groupInfo, function(index, group){ }}
+                    <div class="layui-card">
+                        <div class="layui-card-header"><span><b>服务器组：</b>{{group.groupName}}</span></div>
+                        <div class="layui-card-body">
+                            <div class="layui-row layui-col-space20">
+                                {{# layui.each(group.storageList, function(index, storage){ }}
+                                <div class="layui-col-md6">
+                                    <div id="chart-index-{{group.index}}-{{storage.index}}"
+                                         style="width: 100%;height:200px;"></div>
+                                    <div>
+                                        <input type="hidden" value="${storage.ipAddr}" name="ip" />
+                                        <input type="hidden" value="${storage.curStatus}" name="status" />
+                                    </div>
+                                </div>
+                                {{# }); }}
+                            </div>
+                        </div>
+                    </div>
+                    {{# }); }}
+                </script>
             </div>
         </div>
     </div>
 </div>
+<input type="hidden" id="hidMinListDate" value="1998-01-01"/>
+<input type="hidden" id="hidMaxListDate" value='@DateTime.Now.ToString(" yyyy-MM-dd")' />
 <script>
-    layui.use(['admin', 'echarts', 'element', 'util'], function (admin, echarts, element, util) {
-        var $ = layui.jquery;
-        var view = $('#VIEW-chart-index');
-        var myChart;
+    layui.use(['admin', 'echarts', 'element', 'laytpl', 'form', 'laydate'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , element = layui.element
+            , echarts = layui.echarts
+            , laytpl = layui.laytpl
+            , layer = layui.layer
+            , laydate = layui.laydate
+            , form = layui.form;
 
-        element.on('tab(tab-info-group1)', function(data) {
-
+        var minListDate = $('#hidMinListDate').val();//最小可选时间，例：1990-02-01
+        var maxListDate = $('#hidMaxListDate').val();//最大可选时间，例：2200-12-31
+        var begin = "#beginDate", end = "#endDate";//开始时间选择框、结束时间选择框：文本框
+        var endChange = function (val, date) {
+            if (date && date.year)
+                begindate.config.max = {
+                    year: date.year,
+                    month: date.month - 1,//必须减1才是正确值
+                    date: date.date,
+                    hours: date.hours,
+                    minutes: date.minutes,
+                    seconds: date.seconds
+                };
+            else {
+                var dateInit = new Date(maxListDate.replace(/-/g, "/"));
+                begindate.config.max = {
+                    year: dateInit.getFullYear(),
+                    month: dateInit.getMonth(),
+                    date: dateInit.getDate(),
+                    hours: dateInit.getHours(),
+                    minutes: dateInit.getMinutes(),
+                    seconds: dateInit.getSeconds()
+                };
+            }
+        };
+        var beginChange = function (val, date) {
+            if (date && date.year)
+                enddate.config.min = {
+                    year: date.year,
+                    month: date.month - 1,
+                    date: date.date,
+                    hours: date.hours,
+                    minutes: date.minutes,
+                    seconds: date.seconds
+                };
+            else {
+                var dateInit = new Date(minListDate.replace(/-/g, "/"));
+                enddate.config.min = {
+                    year: dateInit.getFullYear(),
+                    month: dateInit.getMonth(),
+                    date: dateInit.getDate(),
+                    hours: dateInit.getHours(),
+                    minutes: dateInit.getMinutes(),
+                    seconds: dateInit.getSeconds()
+                };
+            }
+        };
+        var enddate = laydate.render({
+            elem: end,
+            format: 'yyyy-MM-dd',
+            min: minListDate,
+            max: maxListDate,
+            done: endChange
         });
-        element.on('tab(tab-chart-group1)', function(data) {
-            console.log(JSON.stringify(data));
-            if (data.index==1) {
-                createChart('chart-index-group1', 'group1', 'mem');
-            } else {
-                createChart('chart-index-group1', 'group1', 'cpu');
+        var begindate = laydate.render({
+            elem: begin,
+            format: 'yyyy-MM-dd',
+            min: minListDate,
+            max: maxListDate,
+            done: beginChange
+        });
+
+        admin.get({
+            url: '/manage/netTraffic/init',
+            api: 'initNetTraffic',
+            success: function (data) {
+                laytpl($("#group-main-div").html()).render(data, function (html) {
+                    $("#group-main-index").html(html);
+                });
+                $("#beginDate").val(data.data.start);
+                $("#endDate").val(data.data.end);
+                layui.each(data.data.groupInfo, function (index, group) {
+                    layui.each(group.storageList, function (index, storage) {
+                        var paraData = {
+                            ip: storage.ipAddr,
+                            start: data.data.start,
+                            end: data.data.end
+                        };
+                        createChart('chart-index-' + group.index + '-' + storage.index, paraData, storage.ipAddr+' '+storage.curStatus);
+                    });
+                });
             }
         });
 
-        function createChart(id,group,type) {
-            myChart = echarts.init(document.getElementById(id), layui.echartsTheme);
+        function createChart(id,paraData,title) {
+            var myChart = echarts.init(document.getElementById(id), layui.echartsTheme);
             myChart.showLoading({
                 text : "图表数据正在努力加载...",
                 effect :'whirling',//'spin' | 'bar' | 'ring' | 'whirling' | 'dynamicLine' | 'bubble'
@@ -82,9 +163,9 @@
                 }
             });
             admin.get({
-                url: '/manage/getPerformanceLine',
-                api: 'getPerformance',
-                data: {groupName: group,type: type},
+                url: '/manage/netTraffic/getLine',
+                api: 'getNetTrafficLine',
+                data: paraData,
                 success: function(res){
                     if (res) {
                         var series = [],
@@ -93,23 +174,8 @@
                             series.push({
                                 type: 'line',
                                 name: ele.name,
-                                markPoint: {
-                                    data: [{
-                                        type: 'max',
-                                        name: '最大值'
-                                    }, {
-                                        type: 'min',
-                                        name: '最小值'
-                                    }]
-                                },
-                                lineStyle: {
-                                    normal: {
-                                        width: 3,
-                                        shadowBlur: 40,
-                                        shadowOffsetY: 10
-                                    }
-                                },
-                                smooth: false,
+                                smooth: true,
+                                symbolSize: 3,
                                 itemStyle: {normal: {areaStyle: {type: 'default'}}},
                                 data: ele.data
                             });
@@ -133,19 +199,22 @@
                                     }
                                 }
                             },
-
+                            title: {
+                                text: title,
+                                textStyle: {
+                                    fontSize: 14
+                                }
+                            },
+                            grid: {
+                                top: '20%',
+                                width: '90%',
+                                height: '65%'
+                            },
                             xAxis: {
                                 type: 'time'
                             },
                             yAxis: {
-                                type: 'value',
-                                axisLabel : {
-                                    formatter : '{value} %'
-                                },
-                                splitArea : {
-                                    show : true
-                                },
-                                axisPointer: { snap: true }
+                                type: 'value'
                             },
                             legend: {
                                 data: legend_datas
@@ -161,7 +230,22 @@
                 }
             });
         }
-        createChart('chart-index-group1','group1','cpu');
 
+        /* 监听提交 */
+        form.on('submit(form-group-submit)', function (data) {
+            data.ip = '';
+            $("div[id|=chart-index]").each(function() {
+                var toRender = $(this);
+                var ip = toRender.find('input[name=ip]').val();
+                var title = ip +" "+toRender.find('input[name=status]').val();
+                var params = {
+                    ip:ip,
+                    start:$('#net-traffic-start-time').val(),
+                    end:$('#net-traffic-end-time').val()
+                };
+                createChart('chart-index-' + group.index + '-' + storage.index, params, title);
+            });
+            return true;
+        });
     });
 </script>

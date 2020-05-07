@@ -1,5 +1,5 @@
 <div class="layui-fluid" lay-title="通知用户录入">
-    <form class="layui-form eonadmin-pad-t20" action="" lay-filter="form-group-app">
+    <form class="layui-form eonadmin-pad-t20" action="" lay-filter="form-group-notice">
         <div class="layui-form-item layui-hide">
             <label class="layui-form-label">id</label>
             <div class="layui-input-block">
@@ -17,7 +17,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">email</label>
             <div class="layui-input-block">
-                <input type="text" name="email" placeholder="email" autocomplete="off"
+                <input type="text" name="email" lay-verify="email" placeholder="" autocomplete="off"
                        class="layui-input">
             </div>
         </div>

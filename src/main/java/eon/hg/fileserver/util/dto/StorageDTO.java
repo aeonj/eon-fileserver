@@ -5,19 +5,10 @@ import com.github.tobato.fastdfs.domain.StorageState;
 import java.util.Date;
 
 public class StorageDTO extends StorageState {
-    private StorageState storageState;
     private String cpu;
     private float mem;
     private Date created;
     private String curStatus;
-
-    public StorageState getStorageState() {
-        return storageState;
-    }
-
-    public void setStorageState(StorageState storageState) {
-        this.storageState = storageState;
-    }
 
     public String getCpu() {
         return cpu;

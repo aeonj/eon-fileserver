@@ -1,4 +1,4 @@
-<div class="layui-fluid layui-form" lay-title="网络监控">
+<div class="layui-fluid layui-form" lay-title="流量监控">
     <div class="layui-card">
         <div class="layui-card-body">
             <form class="layui-form" action="" lay-filter="form-group">
@@ -8,7 +8,7 @@
                         <label class="layui-form-label">开始时间：</label>
                         <div class="layui-input-inline">
                             <input type="text" name="beginDate" id="beginDate" autocomplete="off"
-                                   class="layui-input laydate" placeholder="年-月-日">
+                                   class="layui-input laydate" placeholder="年-月-日 时:分">
                         </div>
                     </div>
 
@@ -16,7 +16,7 @@
                         <label class="layui-form-label">结束时间：</label>
                         <div class="layui-input-inline">
                             <input type="text" name="endDate" id="endDate" autocomplete="off" class="layui-input laydate"
-                                   placeholder="年-月-日">
+                                   placeholder="年-月-日 时:分">
                         </div>
                     </div>
 
@@ -133,7 +133,7 @@
 
         admin.get({
             url: '/manage/netTraffic/init',
-            api: 'initNetTraffic',
+            //api: 'initNetTraffic',
             success: function (data) {
                 laytpl($("#group-main-div").html()).render(data, function (html) {
                     $("#group-main-index").html(html);
@@ -164,7 +164,7 @@
             });
             admin.get({
                 url: '/manage/netTraffic/getLine',
-                api: 'getNetTrafficLine',
+                //api: 'getNetTrafficLine',
                 data: paraData,
                 success: function(res){
                     if (res) {

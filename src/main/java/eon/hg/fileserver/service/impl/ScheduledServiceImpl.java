@@ -44,7 +44,7 @@ public class ScheduledServiceImpl {
 
     Map<String, Date> datemap = new HashMap<>();
 
-//    @Scheduled(cron = "0 */1 * * * ?")
+    @Scheduled(cron = "0 */1 * * * ?")
     @Transactional(propagation = Propagation.REQUIRED)
     public void scheduledGroupByMinutes() {
         log.info("group minutes data upate begin...");
@@ -69,11 +69,12 @@ public class ScheduledServiceImpl {
     }
 
     private void updateGroup(String flag) {
-        List<GroupDTO> groupList =monitorService.listGroupInfo();
+        List<GroupDTO> groupList =monitorService.listGroupInfo(true);
         for (GroupDTO group : groupList) {
             Map mapGroup = BeanUtil.beanToMap(group);
             String group_id = IdUtil.fastSimpleUUID();
             mapGroup.put("id",group_id);
+            mapGroup.remove("storageList");
             sqlMapper.insert(SqlTools.getInsertSql("tb_group"+flag,mapGroup));
             for (StorageDTO storage : group.getStorageList()) {
                 Map mapStorage = BeanUtil.beanToMap(storage);

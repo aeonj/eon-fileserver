@@ -50,15 +50,18 @@ public class MonitorController {
         return ResultBody.success().addObject(map);
     }
 
-
-
     @RequestMapping("/performance/getLine")
     public List<Line> getPerformanceLine(String groupName,String type) {
         return monitorService.listStorageLines(groupName,type);
     }
 
-    @RequestMapping("/capactity/getLine")
-    public List<Line> capactityStorage(String ip, String startTime,
+    @RequestMapping("/netTraffic/getLine")
+    public List<Line> getNetTrafficLine(String ip, String start, String end) {
+        return monitorService.getNetTrafficLines(ip,start,end);
+    }
+
+    @RequestMapping("/capacity/getLine")
+    public List<Line> capacityStorage(String ip, String startTime,
                                        String endTime) {
         System.out.println(ip);
         List<Line> result = new ArrayList<>();

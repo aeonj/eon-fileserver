@@ -37,7 +37,7 @@
                                                                 <span class="layui-badge layui-bg-green">cpu：</span> 65%   <span class="layui-badge layui-bg-green">mem：</span> 65%   <span class="layui-badge layui-bg-green">状态：</span> <font color="red">Active</font>
                                                             </div>
                                                             <div class="eonadmin-cell-title">
-                                                                <span class="layui-badge layui-bg-green">ifTrunkServer：</span> true   <span class="layui-badge layui-bg-green">最后更新日期：</span> 2920-02-02 12:00:00</font>
+                                                                <span class="layui-badge layui-bg-green">isTrunkServer：</span> true   <span class="layui-badge layui-bg-green">最后更新日期：</span> 2920-02-02 12:00:00</font>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -47,7 +47,7 @@
                                                     <legend>{{storage.ipAddr}}</legend>
                                                     <div class="layui-field-box">
                                                         <p style="margin-top:10px;margin-left:10px;"><b>cpu : </b>{{storage.cpu}}%  <b>mem : </b>{{storage.mem}}%  <b>状态 : </b><font color={{# if(storage.curStatus=='ACTIVE'){ }}"green"{{# }else{ }}"red" {{# } }}>{{storage.curStatus}}</font> </p>
-                                                        <p style="margin-top:10px;margin-left:10px;"><b>trunk : </b>{{storage.ifTrunkServer}}  <b>最后更新日期 : </b> {{# layui.util.toDateString(storage.created) }} </p>
+                                                        <p style="margin-top:10px;margin-left:10px;"><b>trunk : </b>{{storage.isTrunkServer}}  <b>最后更新日期 : </b> {{# layui.util.toDateString(storage.created) }} </p>
                                                     </div>
                                                 </fieldset>
                                                 {{# }); }}
@@ -86,7 +86,7 @@
         var $ = layui.jquery;
         admin.get({
             url: '/manage/performance/init',
-            api: 'initPerformance',
+            //api: 'initPerformance',
             success: function(data){
                 laytpl($("#group-main-div").html()).render(data, function(html){
                     $("#group-main-index").html(html);
@@ -118,7 +118,7 @@
             });
             admin.get({
                 url: '/manage/performance/getLine',
-                api: 'getPerformanceLine',
+                //api: 'getPerformanceLine',
                 data: {groupName: group,type: type},
                 success: function(res){
                     if (res) {

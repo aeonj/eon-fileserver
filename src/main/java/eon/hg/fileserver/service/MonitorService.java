@@ -9,6 +9,8 @@ import java.util.List;
 public interface MonitorService {
     List<GroupDTO> listGroupInfo();
 
+    List<GroupDTO> listGroupInfo(boolean is_current);
+
     List<GroupDTO> listGroups();
 
     List<StorageDTO> listStorage(String groupName);

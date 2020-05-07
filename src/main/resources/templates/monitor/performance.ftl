@@ -35,7 +35,7 @@
                                             color="red">Active</font>
                                     </div>
                                     <div class="eonadmin-cell-title">
-                                        <span class="layui-badge layui-bg-green">ifTrunkServer：</span> true <span
+                                        <span class="layui-badge layui-bg-green">isTrunkServer：</span> true <span
                                             class="layui-badge layui-bg-green">最后更新日期：</span> 2920-02-02 12:00:00</font>
                                     </div>
                                 </div>

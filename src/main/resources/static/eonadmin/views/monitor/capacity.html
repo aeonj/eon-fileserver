@@ -26,7 +26,7 @@
         var $ = layui.jquery;
         admin.get({
             url: '/manage/capacity/init',
-            api: 'initCapacity',
+            //api: 'initCapacity',
             success: function (data) {
                 laytpl($("#group-main-div").html()).render(data, function (html) {
                     $("#group-main-index").html(html);

@@ -11,6 +11,7 @@ import eon.hg.fileserver.service.MonitorService;
 import eon.hg.fileserver.util.dto.GroupDTO;
 import eon.hg.fileserver.util.dto.Line;
 import eon.hg.fileserver.util.dto.StorageDTO;
+import eon.hg.fileserver.util.file.FDfsHandler;
 import eon.hg.fileserver.util.ssh.JsshProxy;
 import eon.hg.fileserver.util.ssh.Machine;
 import eon.hg.fileserver.util.ssh.SshTools;
@@ -35,6 +36,11 @@ public class MonitorServiceImpl implements MonitorService {
 
     @Override
     public List<GroupDTO> listGroupInfo() {
+        return listGroupInfo(false);
+    }
+
+    @Override
+    public List<GroupDTO> listGroupInfo(boolean is_current) {
         List<GroupDTO> result = new ArrayList<>();
         List<GroupState> groupStates = trackerClient.listGroups();
         if (groupStates == null) {
@@ -42,47 +48,50 @@ public class MonitorServiceImpl implements MonitorService {
             return null;
         }
         log.info("group count: " + groupStates.size());
-        Date date = new Date();
 
         for (GroupState groupStat : groupStates) {
             GroupDTO group = BeanUtil.toBean(groupStat, GroupDTO.class);
             List<StorageState> storageStateList = trackerClient.listStorages(groupStat.getGroupName());
             for (StorageState storageState : storageStateList) {
                 StorageDTO storage = BeanUtil.toBean(storageState, StorageDTO.class);
+                storage.setCurStatus(FDfsHandler.getStorageStatusCaption(storage.getStatus()));
                 group.addStorage(storage);
             }
             result.add(group);
         }
 
-        String cmd = "ps -aux|grep fdfs";
-        for (Machine machine : SshTools.machines) {
-            List<String> strList;
-            if(machine.isConfigType())
-                strList = SshTools.exeRemoteConsole(machine.getIp(),
-                        machine.getUsername(), machine.getPassword(), cmd);
-            else {
-                try {
-                    strList = new JsshProxy(machine.getIp(), machine.getUsername(), machine.getPort(), machine.getSsh()).execute(cmd).getExecuteLines();
-                } catch (JSchException e) {
-                    e.printStackTrace();
-                    throw new ResultException(e);
+        if (is_current) {
+            Date date = new Date();
+            String cmd = "ps -aux|grep fdfs";
+            for (Machine machine : SshTools.machines) {
+                List<String> strList;
+                if (machine.isConfigType())
+                    strList = SshTools.exeRemoteConsole(machine.getIp(),
+                            machine.getUsername(), machine.getPassword(), cmd);
+                else {
+                    try {
+                        strList = new JsshProxy(machine.getIp(), machine.getUsername(), machine.getPort(), machine.getSsh()).execute(cmd).getExecuteLines();
+                    } catch (JSchException e) {
+                        e.printStackTrace();
+                        throw new ResultException(e);
+                    }
                 }
-            }
-            for (String str : strList) {
-                if (str.contains("storage.conf")) {
-                    for (GroupDTO group : result) {
-                        group.setCreated(date);
-                        for (StorageDTO storage : group.getStorageList()) {
-                            if (machine.getIp().equalsIgnoreCase(
-                                    storage.getIpAddr())) {
-                                String[] strArrray = str.replaceAll(" +", ",")
-                                        .split(",");
-                                storage.setCpu(strArrray[2]);
-                                storage.setMem(Float.parseFloat(strArrray[3]));
+                for (String str : strList) {
+                    if (str.contains("storage.conf")) {
+                        for (GroupDTO group : result) {
+                            group.setCreated(date);
+                            for (StorageDTO storage : group.getStorageList()) {
+                                if (machine.getIp().equalsIgnoreCase(
+                                        storage.getIpAddr())) {
+                                    String[] strArrray = str.replaceAll(" +", ",")
+                                            .split(",");
+                                    storage.setCpu(strArrray[2]);
+                                    storage.setMem(Float.parseFloat(strArrray[3]));
 
+
+                                }
 
                             }
-
                         }
                     }
                 }

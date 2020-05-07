@@ -47,11 +47,12 @@
         form.render();
         table.render({
             elem: '[lay-filter="' + tableFilter + '"]',
-            api: 'getNoticeList',
-            url: '/manage/notice/list',
+            //api: 'getNoticeList',
+            url: '/manage/warning/user/list',
             height: 'full-225',
             cols: [[
                 {type: 'checkbox', fixed: 'left'},
+                {title: 'id', field: 'id', width: 50},
                 {title: '用户名', field: 'name', minWidth: 100},
                 {title: '手机号', field: 'phone', minWidth: 160},
                 {
@@ -66,30 +67,28 @@
         //事件
         var active = {
             batchdel: function () {
-                var checkStatus = table.checkStatus('LAY-user-manage')
+                var checkStatus = table.checkStatus('list-table-notice')
                     , checkData = checkStatus.data; //得到选中的数据
 
                 if (checkData.length === 0) {
                     return layer.msg('请选择数据');
                 }
 
-                layer.prompt({
-                    formType: 1
-                    , title: '敏感操作，请验证口令'
-                }, function (value, index) {
-                    layer.close(index);
+                layer.confirm('确定删除吗？', function (index) {
 
-                    layer.confirm('确定删除吗？', function (index) {
-
-                        //执行 Ajax 后重载
-                        /*
-                        admin.req({
-                          url: 'xxx'
-                          //,……
-                        });
-                        */
-                        table.reload('LAY-user-manage');
-                        layer.msg('已删除');
+                    //执行 Ajax 后重载
+                    admin.post({
+                        url: '/manage/warning/user/batchdel',
+                        data: JSON.stringify(checkData),
+                        contentType: 'application/json',
+                        success: function (res) {
+                            if (res.code == 0) {
+                                table.reload('list-table-notice');
+                                layer.close(index); //关闭弹层
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
                     });
                 });
             }
@@ -108,8 +107,8 @@
                             var field = data.field; //获取提交的字段
                             //提交 Ajax 成功后，静态更新表格中的数据
                             admin.post({
-                                url: '/manage/notice/data/insert',
-                                api: 'insertnoticeData',
+                                url: '/manage/warning/user/insert',
+                                //api: 'insertnoticeData',
                                 data: field,
                                 success: function (res) {
                                     if (res.code == 0) {
@@ -137,8 +136,18 @@
             var data = obj.data;
             if (obj.event === 'del') {
                 layer.confirm('真的删除这个用户么', function (index) {
-                    obj.del();
-                    layer.close(index);
+                    admin.post({
+                        url: '/manage/warning/user/delete',
+                        data: data,
+                        success: function (res) {
+                            if (res.code == 0) {
+                                obj.del();
+                                layer.close(index); //关闭弹层
+                            } else {
+                                layer.msg(res.msg);
+                            }
+                        }
+                    });
                 });
             } else if (obj.event === 'edit') {
                 var tr = $(obj.tr);
@@ -157,8 +166,8 @@
                             var field = data.field; //获取提交的字段
                             //提交 Ajax 成功后，静态更新表格中的数据
                             admin.post({
-                                url: '/manage/notice/data/update',
-                                api: 'insertnoticeData',
+                                url: '/manage/warning/user/update',
+                                //api: 'insertnoticeData',
                                 data: field,
                                 success: function (res) {
                                     if (res.code == 0) {

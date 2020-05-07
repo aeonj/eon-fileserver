@@ -6,7 +6,7 @@ import cn.hutool.core.util.IdUtil;
 import com.jcraft.jsch.JSchException;
 import eon.hg.fileserver.mapper.SqlMapper;
 import eon.hg.fileserver.mapper.DownRecordMapper;
-import eon.hg.fileserver.mapper.WarningDataMapper;
+import eon.hg.fileserver.mapper.WarningMapper;
 import eon.hg.fileserver.model.DownRecord;
 import eon.hg.fileserver.model.WarningData;
 import eon.hg.fileserver.service.MonitorService;
@@ -38,7 +38,7 @@ public class ScheduledServiceImpl {
     @Resource
     private SqlMapper sqlMapper;
     @Resource
-    private WarningDataMapper warningDataMapper;
+    private WarningMapper warningDataMapper;
     @Autowired
     private MonitorService monitorService;
 
@@ -89,15 +89,15 @@ public class ScheduledServiceImpl {
     }
 
     private void warning(StorageDTO storage) {
-        List<WarningData> warningDatas = warningDataMapper.findByIp(storage.getIpAddr());
+        WarningData warningData = warningDataMapper.getWarningDataByIpAddr(storage.getIpAddr());
         StringBuffer stringBuffer = new StringBuffer("异常服务器：" + storage.getIpAddr() + "</br>");
-        if (!warningDatas.isEmpty()) {
-            float wdCup = Float.parseFloat(warningDatas.get(0).getWdCpu());
-            float wdMem = warningDatas.get(0).getWdMem();
-            long wdFreeMB = warningDatas.get(0).getWdFreeMB();
+        if (warningData!=null) {
+            float wdCpu = Float.parseFloat(warningData.getWdCpu());
+            float wdMem = warningData.getWdMem();
+            long wdFreeMB = warningData.getWdFreeMB();
             boolean res = true;
-            if (Float.parseFloat(storage.getCpu()) > wdCup) {
-                stringBuffer.append("cpu使用率当前值为： " + storage.getCpu() + "% 大于预警值：" + wdCup + "%</br>");
+            if (Float.parseFloat(storage.getCpu()) > wdCpu) {
+                stringBuffer.append("cpu使用率当前值为： " + storage.getCpu() + "% 大于预警值：" + wdCpu + "%</br>");
                 res = false;
             }
             if (storage.getMem() > wdMem) {

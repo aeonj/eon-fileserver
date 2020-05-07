@@ -2,9 +2,11 @@ package eon.hg.fileserver.service.impl;
 
 import eon.hg.fileserver.mapper.AppMapper;
 import eon.hg.fileserver.mapper.FileMapper;
-import eon.hg.fileserver.mapper.ProfessionMapper;
+import eon.hg.fileserver.mapper.WarningMapper;
 import eon.hg.fileserver.model.App;
 import eon.hg.fileserver.model.FileInfo;
+import eon.hg.fileserver.model.WarningData;
+import eon.hg.fileserver.model.WarningUser;
 import eon.hg.fileserver.service.ManageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,7 @@ public class ManageServiceImpl implements ManageService {
     @Resource
     private FileMapper fileMapper;
     @Resource
-    private ProfessionMapper professionMapper;
+    private WarningMapper warningMapper;
 
     @Override
     public List<FileInfo> getAppFiles(String app_no) {
@@ -60,5 +62,68 @@ public class ManageServiceImpl implements ManageService {
         }
     }
 
+    @Override
+    public List<WarningData> loadWarningDataList() {
+        return warningMapper.getAllWarningData();
+    }
 
+    @Override
+    public WarningData getWarningDataByIpAddr(String ipAddr) {
+        return warningMapper.getWarningDataByIpAddr(ipAddr);
+    }
+
+    @Override
+    public void insertWarningData(WarningData obj) {
+        warningMapper.insertWarningData(obj);
+    }
+
+    @Override
+    public void updateWarningData(WarningData obj) {
+        warningMapper.updateWarningData(obj);
+    }
+
+    @Override
+    public void deleteWarningData(WarningData obj) {
+        warningMapper.deleteWarningData(obj.getId());
+    }
+
+    @Override
+    public void batchDeleteWarningData(List<WarningData> objs) {
+        for (WarningData obj: objs) {
+            warningMapper.deleteWarningData(obj.getId());
+        }
+    }
+
+    @Override
+    public List<WarningUser> loadWarningUserList() {
+        return warningMapper.getAllWarningUser();
+    }
+
+    @Override
+    public WarningUser getWarningUserByName(String name) {
+        return warningMapper.getWarningUserByName(name);
+    }
+
+    @Override
+    public void insertWarningUser(WarningUser obj) {
+        warningMapper.insertWarningUser(obj);
+    }
+
+    @Override
+    public void updateWarningUser(WarningUser obj) {
+        warningMapper.updateWarningUser(obj);
+    }
+
+    @Override
+    public void deleteWarningUser(WarningUser obj) {
+        warningMapper.deleteWarningUser(obj.getId());
+    }
+
+    @Override
+    public void batchDeleteWarningUser(List<WarningUser> objs) {
+        for (WarningUser obj: objs) {
+            warningMapper.deleteWarningUser(obj.getId());
+        }
+    }
+    
 }

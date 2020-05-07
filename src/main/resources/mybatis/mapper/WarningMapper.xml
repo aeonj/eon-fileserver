@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="eon.hg.fileserver.mapper.WarningMapper">
+    <resultMap id="WarningDataBaseResultMap" type="eon.hg.fileserver.model.WarningData">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="wdFreeMB" jdbcType="BIGINT" property="wdFreeMB" />
+        <result column="wdCpu" jdbcType="VARCHAR" property="wdCpu" />
+        <result column="wdMem" jdbcType="FLOAT" property="wdMem" />
+        <result column="wdIpAddr" jdbcType="VARCHAR" property="wdIpAddr" />
+        <result column="wdGroupName" jdbcType="VARCHAR" property="wdGroupName" />
+    </resultMap>
+
+    <resultMap id="WarningUserBaseResultMap" type="eon.hg.fileserver.model.WarningUser">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+    </resultMap>
+
+    <sql id="WarningDataBase_Column_List">
+        id, wdGroupName, wdIpAddr, wdCpu, wdMem, wdFreeMB
+    </sql>
+
+    <sql id="WarningUserBase_Column_List">
+        id, name, email, phone
+    </sql>
+
+    <select id="getAllWarningData" resultMap="WarningDataBaseResultMap"  >
+        SELECT
+        <include refid="WarningDataBase_Column_List" />
+        FROM tb_warningdata
+    </select>
+
+    <select id="getOneWarningData" parameterType="java.lang.Long" resultMap="WarningDataBaseResultMap" >
+        SELECT
+        <include refid="WarningDataBase_Column_List" />
+        FROM tb_warningdata
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insertWarningData" parameterType="eon.hg.fileserver.model.WarningData" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_warningdata (id, wdGroupName, wdIpAddr, wdCpu, wdMem, wdFreeMB)
+        values (#{id}, #{wdGroupName}, #{wdIpAddr}, #{wdCpu}, #{wdMem}, #{wdFreeMB})
+    </insert>
+
+    <update id="updateWarningData" parameterType="eon.hg.fileserver.model.WarningData">
+        update tb_warningdata
+        set
+        wdCpu = #{wdCpu},
+        wdMem = #{wdMem},
+        wdFreeMB = #{wdFreeMB}
+        where
+        id = #{id}
+    </update>
+
+    <delete id="deleteWarningData" parameterType="java.lang.Long" >
+        DELETE FROM
+        tb_warningdata
+        WHERE
+        id =#{id}
+    </delete>
+
+    <select id="getWarningDataByIpAddr" parameterType="java.lang.String" resultMap="WarningDataBaseResultMap" >
+        SELECT
+        <include refid="WarningDataBase_Column_List" />
+        FROM tb_warningdata
+        WHERE
+        wdIpAddr = #{ip_addr}
+    </select>
+
+    <select id="getAllWarningUser" resultMap="WarningUserBaseResultMap"  >
+        SELECT
+        <include refid="WarningUserBase_Column_List" />
+        FROM tb_warninguser
+    </select>
+
+    <select id="getOneWarningUser" parameterType="java.lang.Long" resultMap="WarningUserBaseResultMap" >
+        SELECT
+        <include refid="WarningUserBase_Column_List" />
+        FROM tb_warninguser
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insertWarningUser" parameterType="eon.hg.fileserver.model.WarningUser" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_warninguser (id, name, email, phone)
+        values (#{id}, #{name}, #{email}, #{phone})
+    </insert>
+
+    <update id="updateWarningUser" parameterType="eon.hg.fileserver.model.WarningUser">
+        update tb_warninguser
+        set
+        email = #{email},
+        phone = #{phone}
+        where
+        id = #{id}
+    </update>
+
+    <delete id="deleteWarningUser" parameterType="java.lang.Long" >
+        DELETE FROM
+        tb_warninguser
+        WHERE
+        id =#{id}
+    </delete>
+
+    <select id="getWarningUserByName" parameterType="java.lang.String" resultMap="WarningUserBaseResultMap" >
+        SELECT
+        <include refid="WarningUserBase_Column_List" />
+        FROM tb_warninguser
+        WHERE
+        name = #{name}
+    </select>
+
+</mapper>

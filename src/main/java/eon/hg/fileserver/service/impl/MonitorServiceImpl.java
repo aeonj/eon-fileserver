@@ -1,11 +1,10 @@
 package eon.hg.fileserver.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.convert.Convert;
 import com.github.tobato.fastdfs.domain.GroupState;
 import com.github.tobato.fastdfs.domain.StorageState;
 import com.github.tobato.fastdfs.service.TrackerClient;
-import com.jcraft.jsch.JSchException;
-import eon.hg.fileserver.exception.ResultException;
 import eon.hg.fileserver.mapper.SqlMapper;
 import eon.hg.fileserver.service.MonitorService;
 import eon.hg.fileserver.util.dto.GroupDTO;
@@ -66,15 +65,10 @@ public class MonitorServiceImpl implements MonitorService {
             for (Machine machine : SshTools.machines) {
                 List<String> strList;
                 if (machine.isConfigType())
-                    strList = SshTools.exeRemoteConsole(machine.getIp(),
+                    strList = SshTools.exeRemoteConsole(machine.getIp(),machine.getPort(),
                             machine.getUsername(), machine.getPassword(), cmd);
                 else {
-                    try {
-                        strList = new JsshProxy(machine.getIp(), machine.getUsername(), machine.getPort(), machine.getSsh()).execute(cmd).getExecuteLines();
-                    } catch (JSchException e) {
-                        e.printStackTrace();
-                        throw new ResultException(e);
-                    }
+                        strList = new JsshProxy(machine.getIp(), machine.getUsername(), "root123456",machine.getPort()).execute(cmd).getExecuteLines();
                 }
                 for (String str : strList) {
                     if (str.contains("storage.conf")) {
@@ -85,8 +79,8 @@ public class MonitorServiceImpl implements MonitorService {
                                         storage.getIpAddr())) {
                                     String[] strArrray = str.replaceAll(" +", ",")
                                             .split(",");
-                                    storage.setCpu(strArrray[2]);
-                                    storage.setMem(Float.parseFloat(strArrray[3]));
+                                    storage.setCpu(Convert.toFloat(strArrray[2]));
+                                    storage.setMem(Convert.toFloat(strArrray[3]));
 
 
                                 }
@@ -243,7 +237,7 @@ public class MonitorServiceImpl implements MonitorService {
                                     ss.getMem()});
                 } else {
                     line.getData().add(new Object[]{ss.getCreated().getTime(),
-                            Double.parseDouble(ss.getCpu())});
+                            ss.getCpu()});
                 }
 
             }

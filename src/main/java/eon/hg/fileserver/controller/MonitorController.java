@@ -30,7 +30,7 @@ public class MonitorController {
 
     @RequestMapping("/performance/init")
     public ResultBody initPerformance() {
-        return ResultBody.success().addObject(monitorService.listGroupInfo());
+        return ResultBody.success().addObject(monitorService.listGroupInfo(true));
     }
 
     @RequestMapping("/capacity/init")

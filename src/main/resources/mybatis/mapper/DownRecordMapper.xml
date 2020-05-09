@@ -3,7 +3,7 @@
 <mapper namespace="eon.hg.fileserver.mapper.DownRecordMapper">
     <resultMap id="BaseResultMap" type="eon.hg.fileserver.model.DownRecord">
         <id column="id" jdbcType="BIGINT" property="id" />
-        <result column="file_id" jdbcType="BIGINT" property="fileId" />
+        <result column="file_id" jdbcType="VARCHAR" property="fileId" />
         <result column="access_count" jdbcType="VARCHAR" property="accessCount" />
         <result column="src_ip" property="srcIp" />
     </resultMap>

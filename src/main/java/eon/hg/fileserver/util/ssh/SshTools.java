@@ -18,17 +18,14 @@ public class SshTools {
 
     private static final Logger logger = LoggerFactory.getLogger(SshTools.class);
     public static List<Machine> machines;
-    public static List<String> exeRemoteConsole(String hostname, String username, String password, String cmd) {
+    public static List<String> exeRemoteConsole(String hostname, int port, String username, String password, String cmd) {
         List<String> result = new ArrayList<String>();
         //指明连接主机的IP地址
-        Connection conn = new Connection(hostname);
         Session ssh = null;
         try {
             //连接到主机
-            conn.connect();
-            //使用用户名和密码校验
-            boolean isconn = conn.authenticateWithPassword(username, password);
-            if (!isconn) {
+            Connection conn = SshPool.INSTANCE.getConnection(hostname,port,username,password);
+            if (conn==null || false == conn.isAuthenticationComplete()) {
                 logger.error("用户名称或者是密码不正确");
             } else {
                 logger.info("已经连接OK");
@@ -49,7 +46,6 @@ public class SshTools {
             if (ssh != null) {
                 ssh.close();
             }
-            conn.close();
         } catch (IOException e) {
             logger.error("", e);
         }
@@ -99,6 +95,12 @@ public class SshTools {
                 Machine machine = new Machine();
                 String ip = element.element("ip").getText();
                 String username = element.element("username").getText();
+                if(element.element("port")!=null) {
+                    int port = Integer.parseInt(element.element("port").getText());
+                    machine.setPort(port);
+                } else {
+                    machine.setPort(22);
+                }
                 if(element.element("password")!=null){
 
                     String password = element.element("password").getText();
@@ -111,8 +113,7 @@ public class SshTools {
                     String ssh = element.element("ssh").getText();
                     machine.setSsh(ssh);
                     machine.setConfigType(false);    //密钥登录
-                    int port = Integer.parseInt(element.element("port").getText());
-                    machine.setPort(port);
+
                 }
                 String logpath = element.element("logpath").getText();
                 machine.setIp(ip);

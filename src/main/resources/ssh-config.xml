@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
     <server>
-		 <ip>10.64.125.209</ip>
+		 <ip>10.64.125.223</ip>
         <username>root</username>
         <password>root123456</password>
+        <!--<ssh>/Users/aeon/.ssh/known_hosts</ssh>-->
+        <port>22</port>
         <logpath>/Users/aeon/Documents/logs</logpath>
 	</server>
 <!--

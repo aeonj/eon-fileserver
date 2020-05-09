@@ -39,7 +39,7 @@ spring:
         min-idle: 0
   datasource:
 #    name: test
-    url: jdbc:mysql://127.0.0.1:3306/fastdfs
+    url: jdbc:mysql://127.0.0.1:3306/eon_file
     username: root
     password: root
     # 使用druid数据源

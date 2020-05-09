@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class WarningData implements Serializable {
     private Long id;
     private long wdFreeMB;  //free disk storage in MB
-    private String wdCpu;
+    private float wdCpu;
     private float wdMem;
     private String wdIpAddr;
     private String wdGroupName;
@@ -13,7 +13,7 @@ public class WarningData implements Serializable {
     public WarningData() {
     }
 
-    public WarningData(Long id, long wdFreeMB, String wdCpu, float wdMem, String wdIpAddr, String wdGroupName) {
+    public WarningData(Long id, long wdFreeMB, float wdCpu, float wdMem, String wdIpAddr, String wdGroupName) {
         this.id = id;
         this.wdFreeMB = wdFreeMB;
         this.wdCpu = wdCpu;
@@ -38,11 +38,11 @@ public class WarningData implements Serializable {
         this.wdFreeMB = wdFreeMB;
     }
 
-    public String getWdCpu() {
+    public float getWdCpu() {
         return wdCpu;
     }
 
-    public void setWdCpu(String wdCpu) {
+    public void setWdCpu(float wdCpu) {
         this.wdCpu = wdCpu;
     }
 
